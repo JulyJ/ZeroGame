@@ -37,7 +37,7 @@ setup(
     platforms='any',
     entry_points={
         'console_scripts': [
-            'zerogame = zerogame.aiohttp_zerogame.main',
+            'zerogame = zerogame.aiohttp_zerogame.main:run',
         ],
     },
     classifiers=[
