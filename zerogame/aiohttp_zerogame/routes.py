@@ -3,10 +3,16 @@ from os import path
 from .views import PageViews
 
 
+views = PageViews()
+routes = [
+    ('GET', '/', views.index,  'main'),
+    ('*', '/start',   views.start, 'login')
+    ]
+
+
 def setup_routes(app):
-    views = PageViews()
-    app.router.add_get('/', views.index)
-    app.router.add_post('/start', views.start)
+    for route in routes:
+        app.router.add_route(route[0], route[1], route[2], name=route[3])
     app.router.add_static('/static/',
-                          path=path.abspath(__file__)+'/../../'+'/static/',
+                          path.abspath(__file__)+'/../../'+'/static/',
                           name='static')

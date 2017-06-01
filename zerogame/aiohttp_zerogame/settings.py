@@ -1,5 +1,6 @@
 from logging import getLogger, DEBUG, Formatter, StreamHandler
 
+
 log = getLogger('app')
 log.setLevel(DEBUG)
 
@@ -8,3 +9,5 @@ ch = StreamHandler()
 ch.setLevel(DEBUG)
 ch.setFormatter(form)
 log.addHandler(ch)
+
+DEBUG = True
