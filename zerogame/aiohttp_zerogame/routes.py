@@ -1,11 +1,12 @@
 from os import path
 
-from .views import index, start
+from .views import PageViews
 
 
 def setup_routes(app):
-    app.router.add_get('/', index)
-    app.router.add_post('/start', start)
+    views = PageViews()
+    app.router.add_get('/', views.index)
+    app.router.add_post('/start', views.start)
     app.router.add_static('/static/',
                           path=path.abspath(__file__)+'/../../'+'/static/',
                           name='static')
