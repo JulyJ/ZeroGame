@@ -1,20 +1,21 @@
-from aiohttp import web
+from time import time
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
 
-class PageViews():
-    @aiohttp_jinja2.template('index.html')
-    async def index(self, request):
+class PageViews:
+    @staticmethod
+    async def index(request):
         session = await get_session(request)
-        return {'text': 'Zero Game'}
+        session['last_visit'] = time()
+        response = aiohttp_jinja2.render_template('index.html',
+                                                  request,
+                                                  {'text': 'Zero Game'}
+                                                  )
+        return response
 
     @aiohttp_jinja2.template('start.html')
     async def start(self, request):
         data = await request.post()
         name = data['name'] if 'name' in data else 'John Doe'
         return {'text': 'Started for {}'.format(name)}
-
-
-class WebSocket(web.View):
-    pass
