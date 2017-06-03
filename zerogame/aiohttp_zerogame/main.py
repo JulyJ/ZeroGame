@@ -11,7 +11,7 @@ from os import path
 
 from .db import DataBaseConnection
 from .routes import setup_routes
-from .config import log, DEBUG
+from .config import log, DEBUG_MODE
 from .middlewares import authorize
 
 
@@ -25,13 +25,13 @@ class Server:
             authorize
         ]
 
-        if DEBUG:
+        if DEBUG_MODE:
             middle.append(aiohttp_debugtoolbar.middleware)
 
         app = web.Application(loop=loop, middlewares=middle)
         aiohttp_jinja2.setup(app,
                              loader=jinja2.FileSystemLoader(templates_path))
-        if DEBUG:
+        if DEBUG_MODE:
             aiohttp_debugtoolbar.setup(app)
 
         setup_routes(app)

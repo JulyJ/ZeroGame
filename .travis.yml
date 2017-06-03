@@ -1,0 +1,11 @@
+language: python
+python: 3.6
+env:
+  - TOXENV=flake8
+  - TOXENV=py36
+install:
+  - pip install -r requirements.txt
+  - pip install -e .
+script:
+  - tox -e $TOXENV
+secure: "oB1WLkCjei//IVAzsRjpfC9gwoVlzm51sz/seF5xfoelrcOg2WAH0d91COjeIMqfEZTrTP6iUh2ZEfZJDQoihU0Vl3NNWKILwSUOf6lhf/YlUNU2ym7p/WfHfiJZDcqZM9TIYkKLwp2Et5qKG5jgA2K138+gcCojkyqp0qrcMQbMgl5mY+1tivuajh8eP6q7ftavWphjzXi3aOJrtzuYQoM9sT8WX7N94yeYlNtyZhczHU0dVVDcnJVcWjm3I/qttMZRBZ6K2JEgOZvQmRWysUSMz8ZuCuAEZrWFOqPHbcDvpKwIYb0J837a9VWywCzJBJ5ZTxbDIhGB4FjOl98f0IZn08RefGGpUOIbFJTPBVpBNedgEyryDEZdVk/82IVZ8IS/IHCLfJawEW2GzbjLEjX7A4PdypB7V6Ot+/W+2vIVKWo2sVLZrN4ZP8AXXB9MMvoKviOGLgAX4rl3/nw6NfNMsGntc7rV7zr/o8lHlXyquZGNNDKGdXEp30EtseOn0cgsu07sMmvj0WXs1/y0/bP9vmH2Mra/63tRQ3L4bjZHqg8LYY5tLVV6bSeeGU35vhMWpZxehhcxIUlb5mUg+/88N4OWEesB/7znaprzD/2ExwIjDf2oIho7brrHEv8AmDNIUsCmgI314g8Ia+cWT4vU1fSbEj8UTwXa0seKq/s="

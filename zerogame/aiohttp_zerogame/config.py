@@ -1,5 +1,6 @@
 from logging import getLogger, DEBUG, basicConfig
 
+DEBUG_MODE = True
 
 log = getLogger('app')
 basicConfig(
@@ -7,4 +8,13 @@ basicConfig(
         level=DEBUG,
     )
 
-DEBUG = True
+db_conf = {
+    'database': 'zerogame',
+    'user': 'user',
+    'password': 'password',
+    'host': 'localhost',
+    'port': '5432',
+    'minsize': 1,
+    'maxsize': 10,
+    'timeout': 60
+}

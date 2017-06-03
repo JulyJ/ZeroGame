@@ -1,8 +1,7 @@
 from aiopg.sa import create_engine
 import sqlalchemy as sa
 
-from .config import log
-from .db_conf import conf
+from .config import log, db_conf as conf
 
 
 class DataBaseConnection:
