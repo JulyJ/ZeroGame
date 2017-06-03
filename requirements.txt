@@ -3,3 +3,5 @@ aiohttp_jinja2
 aiohttp_session
 cryptography
 aiohttp_debugtoolbar
+aiopg
+sqlalchemy
