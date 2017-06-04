@@ -4,9 +4,16 @@ href="{{ url('static', filename='style.css') }}" />
 <p><h3>{{text}}</h3></p>
 
 <form action="/start" method="post" accept-charset="utf-8"
-      enctype="application/x-www-form-urlencoded">
+      enctype="application/x-www-form-urlencoded"
+      autocomplete="on">
 
-    <label for="name">name</label>
-    <input id="name" name="name" type="text" value="" autofocus/>
-    <input type="submit" value="Start"/>
+    <div class="form-group">
+        <input type="email" class="form-control" name="email" placeholder="Email", id="email" required autofocus>
+    </div>
+    <br>
+    <div class="form-group">
+        <input type="text" class="form-control" name="name" placeholder="Name" id="name" required>
+    </div>
+    <br>
+    <input class="btn btn-primary" type="submit" value="Start"/>
 </form>

@@ -1,47 +1,58 @@
-import asyncio
-from aiohttp import web
-import aiohttp_debugtoolbar
-import aiohttp_jinja2
-from aiohttp_session import session_middleware, setup as setup_session
-from aiohttp_session.cookie_storage import EncryptedCookieStorage
 import base64
-from cryptography import fernet
-import jinja2
 from os import path
 
-from .db import DataBaseConnection
-from .routes import setup_routes
+import aiohttp_debugtoolbar
+import aiohttp_jinja2
+import asyncio
+import jinja2
+from aiohttp import web
+from aiohttp_session import session_middleware, setup as setup_session
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
+from cryptography import fernet
+
+
 from .config import log, DEBUG_MODE
-from .middlewares import authorize
+from .middlewares import authorize, mongo_handler
+from .routes import setup_routes
+from .db import MongoClient
 
 
 class Server:
     async def init_server(self, loop):
         secret_key = self.make_secret()
-        db = DataBaseConnection()
-        templates_path = str(path.dirname(__file__) + '/templates/')
         middle = [
             session_middleware(EncryptedCookieStorage(secret_key)),
-            authorize
+            authorize,
+            mongo_handler
         ]
+        templates_path = str(path.dirname(__file__) + '/templates/')
 
         if DEBUG_MODE:
             middle.append(aiohttp_debugtoolbar.middleware)
 
-        app = web.Application(loop=loop, middlewares=middle)
-        aiohttp_jinja2.setup(app,
-                             loader=jinja2.FileSystemLoader(templates_path))
+        app = web.Application(
+            loop=loop,
+            middlewares=middle
+        )
+        aiohttp_jinja2.setup(
+            app,
+            loader=jinja2.FileSystemLoader(templates_path)
+        )
+
         if DEBUG_MODE:
             aiohttp_debugtoolbar.setup(app)
 
         setup_routes(app)
-        setup_session(app, EncryptedCookieStorage(secret_key))
+        setup_session(
+            app,
+            EncryptedCookieStorage(secret_key)
+        )
 
-        await db.init_pg(app)
-        app.on_cleanup.append(db.close_pg)
+        app.client = MongoClient()
+        app.db = app.client.db
 
         handler = app.make_handler()
-        server_generator = loop.create_server(handler, host='127.0.0.1', port=8080)
+        server_generator = loop.create_server(handler, host='localhost', port=8080)
         return server_generator, handler, app
 
     def run_server(self):

@@ -10,3 +10,11 @@ async def authorize(app, handler):
         log.debug('Last visited set: {}'.format(last_visit))
         return await handler(request)
     return middleware
+
+
+async def mongo_handler(app, handler):
+    async def middleware(request):
+        request.db = app.db
+        response = await handler(request)
+        return response
+    return middleware
