@@ -5,8 +5,8 @@ from .views import PageViews
 
 views = PageViews()
 routes = [
-    ('GET', '/', views.index,  'index'),
-    ('*', '/start',   views.start, 'login')
+    ('GET', '/', views.index, 'index'),
+    ('*', '/start', views.start, 'login'),
     ]
 
 

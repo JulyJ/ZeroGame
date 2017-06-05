@@ -1,19 +1,26 @@
 <link rel="stylesheet" type="text/css"
 href="{{ url('static', filename='style.css') }}" />
 
-<p><h3>{{text}}</h3></p>
+<p><h2>{{text}}</h2></p>
 
 <form action="/start" method="post" accept-charset="utf-8"
       enctype="application/x-www-form-urlencoded"
       autocomplete="on">
-
+    <h4>Create character or login with existing:</h4>
+    E-mail:
     <div class="form-group">
-        <input type="email" class="form-control" name="email" placeholder="Email", id="email" required autofocus>
+    <input type="text" class="form-control" name="email" placeholder="E-mail", id="email" required autofocus>
     </div>
     <br>
+    Your name:
     <div class="form-group">
-        <input type="text" class="form-control" name="name" placeholder="Name" id="name" required>
+        <input type="text" class="form-control" name="name" placeholder="Name", id="name" required autofocus>
     </div>
     <br>
-    <input class="btn btn-primary" type="submit" value="Start"/>
+    Your character name:
+    <div class="form-group">
+        <input type="text" class="form-control" name="character_name" placeholder="Character name" id="character_name" required>
+    </div>
+    <br>
+    <input class="btn btn-primary" type="submit" value="Start game!"/>
 </form>
