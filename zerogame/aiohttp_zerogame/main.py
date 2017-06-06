@@ -11,10 +11,10 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 
 
-from .config import log, DEBUG_MODE
-from .middlewares import authorize, mongo_handler
-from .routes import setup_routes
-from .db import MongoClient
+from config import log, DEBUG_MODE
+from middlewares import authorize, mongo_handler
+from routes import setup_routes
+from db import MongoClient
 
 
 class Server:
@@ -51,6 +51,9 @@ class Server:
         app.client = MongoClient()
         app.db = app.client.db
 
+        app['websockets'] = []
+        app.on_shutdown.append(self.on_shutdown)
+
         handler = app.make_handler()
         server_generator = loop.create_server(handler, host='localhost', port=8080)
         return server_generator, handler, app
@@ -81,6 +84,11 @@ class Server:
         # secret_key must be 32 url-safe base64-encoded bytes
         fernet_key = fernet.Fernet.generate_key()
         return base64.urlsafe_b64decode(fernet_key)
+
+    @staticmethod
+    async def on_shutdown(app):
+        for ws in app['websockets']:
+            await ws.close(code=1001, message='Server shutdown')
 
 
 def run():
