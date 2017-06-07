@@ -1,14 +1,30 @@
+from aiohttp import web
 from aiohttp_session import get_session
 
 from .config import log
+from .routes import routes
 
 
 async def authorize(app, handler):
     async def middleware(request):
+        def check_path(path):
+            return not any(path.startswith(route_path)
+                           or request.path.startswith('/static/')
+                           or request.path.startswith('/_debugtoolbar')
+                           for _, route_path, _, _ in routes)
+
         session = await get_session(request)
-        last_visit = session['last_visit'] if 'last_visit' in session else None
-        log.debug('Last visited set: {}'.format(last_visit))
-        return await handler(request)
+        if session.get("user"):
+            last_visit = session.get('last_visit', None)
+            log.debug('Last visited set: {}'.format(last_visit))
+            return await handler(request)
+        elif check_path(request.path):
+            url = request.app.router['index'].url()
+            raise web.HTTPFound(url)
+            return handler(request)
+        else:
+            return await handler(request)
+
     return middleware
 
 

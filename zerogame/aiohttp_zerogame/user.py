@@ -15,7 +15,7 @@ class User:
     async def check_user(self, **kw):
         return await self.collection.find_one({'email': self.email})
 
-    async def get_login(self, **kw):
+    async def get_email(self, **kw):
         user = await self.collection.find_one({'_id': ObjectId(self.id)})
         return user.get('email')
 

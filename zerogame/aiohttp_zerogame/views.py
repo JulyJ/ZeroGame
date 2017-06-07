@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import time
 
 from aiohttp import web, WSMsgType
 import aiohttp_jinja2
@@ -49,7 +49,7 @@ class WebSocket(web.View):
 
         session = await get_session(self.request)
         user = User(self.request.db, {'id': session.get('user')})
-        login = await user.get_login()
+        login = await user.get_email()
 
         for _ws in self.request.app['websockets']:
             _ws.send_str('game for {} started'.format(login))
@@ -63,13 +63,14 @@ class WebSocket(web.View):
                     story = Story(self.request.db)
                     result = await story.save(user=login, msg=msg.data)
                     log.debug(result)
-                    sleep(5)
                     for _ws in self.request.app['websockets']:
                         _ws.send_str('(%s) %s' % (login, msg.data))
             elif msg.tp == WSMsgType.error:
                 log.debug('ws connection closed with exception %s' % ws.exception())
 
         self.request.app['websockets'].remove(ws)
+        for _ws in self.request.app['websockets']:
+            _ws.send_str('%s ended journey.' % login)
         log.debug('websocket connection closed')
 
         return ws

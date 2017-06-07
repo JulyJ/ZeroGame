@@ -1,18 +1,19 @@
-from os import path
+from os import path as os_path
 
-from .views import PageViews
+from .views import PageViews, WebSocket
 
 
 views = PageViews()
 routes = [
-    ('GET', '/', views.index, 'index'),
+    ('GET', '/index', views.index, 'index'),
     ('*', '/start', views.start, 'login'),
+    ('GET', '/ws', WebSocket, 'ws')
     ]
 
 
 def setup_routes(app):
-    for route in routes:
-        app.router.add_route(route[0], route[1], route[2], name=route[3])
+    for method, path, handler, name in routes:
+        app.router.add_route(method, path, handler, name=name)
     app.router.add_static('/static/',
-                          path.abspath(__file__)+'/../../'+'/static/',
+                          os_path.abspath(__file__)+'/../../'+'/static/',
                           name='static')

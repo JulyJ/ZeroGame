@@ -11,10 +11,10 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 
 
-from config import log, DEBUG_MODE
-from middlewares import authorize, mongo_handler
-from routes import setup_routes
-from db import MongoClient
+from .config import log, DEBUG_MODE
+from .middlewares import authorize, mongo_handler
+from .routes import setup_routes
+from .db import MongoClient
 
 
 class Server:
@@ -75,6 +75,7 @@ class Server:
     @staticmethod
     async def shutdown(server, app, handler):
         server.close()
+        await server.wait_closed()
         await app.shutdown()
         await handler.finish_connections(10.0)
         await app.cleanup()

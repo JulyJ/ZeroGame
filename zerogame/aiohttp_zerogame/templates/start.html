@@ -1,6 +1,21 @@
-<link rel="stylesheet" type="text/css"
-href="{{ url('static', filename='style.css') }}" />
+<head>
+<link href="{{ url('static', filename='style.css') }}" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="{{ url('static', filename='js/main.js') }}"></script>
+</head>
+
+
 
 <p><h3>{{text}}</h3></p>
 
 <a href="{{home_url}}">Back</a>
+
+<div id='subscribe'>
+    {% for mes in messages%}
+    <p>[{{ mes['time'].strftime('%H:%M:%S') }}{{ mes['msg'] }}</p>
+    {% endfor %}
+</div>
+    <p>
+        <input class="btn btn-default" type="button", id="stop_journey", value="Stop journey">
+    </p>
+
