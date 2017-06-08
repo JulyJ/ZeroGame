@@ -1,6 +1,6 @@
 from time import time
 
-from aiohttp import web, WSMsgType
+from aiohttp.web import WebSocketResponse, WSMsgType, View
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
@@ -42,35 +42,38 @@ class PageViews:
                     'home_url': '/'}
 
 
-class WebSocket(web.View):
+class WebSocket(View):
     async def get(self):
-        ws = web.WebSocketResponse()
-        await ws.prepare(self.request)
+        resp = WebSocketResponse()
+        await resp.prepare(self.request)
 
         session = await get_session(self.request)
         user = User(self.request.db, {'id': session.get('user')})
-        login = await user.get_email()
+        character = await user.get_character()
 
-        for _ws in self.request.app['websockets']:
-            _ws.send_str('game for {} started'.format(login))
-        self.request.app['websockets'].append(ws)
+        for ws in self.request.app['websockets']:
+            await ws.send_str('game for {} started'.format(character))
+        self.request.app['websockets'].append(resp)
 
-        async for msg in ws:
-            if msg.tp == WSMsgType.text:
-                if msg.data == 'close':
-                    await ws.close()
-                else:
-                    story = Story(self.request.db)
-                    result = await story.save(user=login, msg=msg.data)
-                    log.debug(result)
-                    for _ws in self.request.app['websockets']:
-                        _ws.send_str('(%s) %s' % (login, msg.data))
-            elif msg.tp == WSMsgType.error:
-                log.debug('ws connection closed with exception %s' % ws.exception())
+        try:
+            async for msg in resp:
+                log.debug(msg)
+                if msg.tp == WSMsgType.text:
+                    if msg.data == 'close':
+                        await ws.close()
+                    else:
+                        story = Story(self.request.db)
+                        result = await story.save(character, msg.data)
+                        log.debug(result)
+                        for ws in self.request.app['websockets']:
+                            await ws.send_str('(%s) %s' % (character, msg.data))
+                elif msg.tp == WSMsgType.error:
+                    log.debug('ws connection closed with exception %s' % ws.exception())
+                return resp
+        finally:
+            self.request.app['websockets'].remove(resp)
+            for ws in self.request.app['websockets']:
+                await ws.send_str('%s ended journey.' % character)
+                log.debug('websocket connection closed')
 
-        self.request.app['websockets'].remove(ws)
-        for _ws in self.request.app['websockets']:
-            _ws.send_str('%s ended journey.' % login)
-        log.debug('websocket connection closed')
-
-        return ws
+        return resp

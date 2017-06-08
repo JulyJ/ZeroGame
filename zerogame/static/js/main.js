@@ -31,11 +31,13 @@ $(document).ready(function(){
         window.location.href = "stop_journey"
     });
 
-    sock.onclose = function(event){
-        showStory('Story ended')
+    sock.onclose = function(){
+        showStory('Story ended.')
+        conn = null;
     };
 
     sock.onerror = function(error){
-        showStory('Error:'+error);
+        showStory('Error');
+        console.log(error)
     }
 });

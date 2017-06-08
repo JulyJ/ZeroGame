@@ -1,3 +1,4 @@
+from datetime import datetime
 import random
 
 
@@ -8,3 +9,11 @@ class Story:
     async def get_story(self):
         stories = self.collection.find()[random.randrange(self.collection.count())]
         return await stories.to_list(length=None)
+
+    async def save(self, character, story, **kw):
+        result = await self.collection.insert({
+                                               'character': character,
+                                               'story': story,
+                                               'time': datetime.now()
+                                               })
+        return result

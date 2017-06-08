@@ -8,10 +8,9 @@ from .routes import routes
 async def authorize(app, handler):
     async def middleware(request):
         def check_path(path):
-            return not any(path.startswith(route_path)
-                           or request.path.startswith('/static/')
-                           or request.path.startswith('/_debugtoolbar')
-                           for _, route_path, _, _ in routes)
+            return not (any(path.startswith(route_path) for _, route_path, _, _ in routes)
+                        or request.path.startswith('/static/')
+                        or request.path.startswith('/_debugtoolbar'))
 
         session = await get_session(request)
         if session.get("user"):

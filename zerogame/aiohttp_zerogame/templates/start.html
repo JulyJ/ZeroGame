@@ -11,8 +11,8 @@
 <a href="{{home_url}}">Back</a>
 
 <div id='subscribe'>
-    {% for mes in messages%}
-    <p>[{{ mes['time'].strftime('%H:%M:%S') }}{{ mes['msg'] }}</p>
+    {% for story in stories%}
+    <p>[{{ story['time'].strftime('%H:%M:%S') }}{{ story['msg'] }}</p>
     {% endfor %}
 </div>
     <p>

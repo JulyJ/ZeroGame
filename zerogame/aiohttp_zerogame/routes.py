@@ -7,7 +7,7 @@ views = PageViews()
 routes = [
     ('GET', '/index', views.index, 'index'),
     ('*', '/start', views.start, 'login'),
-    ('GET', '/ws', WebSocket, 'ws')
+    ('*', '/ws', WebSocket, 'ws')
     ]
 
 
