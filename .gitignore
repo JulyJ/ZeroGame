@@ -1,8 +1,10 @@
-.idea
-.cache
-.coverage
-.tox
+*.db
 *.egg-info
 *.pyc
-*.db
-*mongo_db
+.cache
+.coverage
+.idea
+.tox
+items
+mongo_db
+
