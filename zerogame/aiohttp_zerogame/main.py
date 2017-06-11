@@ -11,10 +11,10 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 
 
-from .config import log, DEBUG_MODE
-from .middlewares import authorize, mongo_handler
-from .routes import setup_routes
-from .db import MongoClient
+from zerogame.aiohttp_zerogame.config import log, DEBUG_MODE
+from zerogame.aiohttp_zerogame.middlewares import authorize, mongo_handler
+from zerogame.aiohttp_zerogame.routes import setup_routes
+from zerogame.aiohttp_zerogame.db import MongoClient
 
 
 class Server:

@@ -1,6 +1,6 @@
 from bson import ObjectId
 
-from .config import log
+from zerogame.aiohttp_zerogame.config import log
 
 
 class User:
@@ -8,6 +8,7 @@ class User:
     def __init__(self, db, data, **kw):
         self.db = db
         self.collection = self.db.users
+        self.id = data.get('id')
         self.email = data.get('email')
         self.name = data.get('name')
         self.character_name = data.get('character_name')

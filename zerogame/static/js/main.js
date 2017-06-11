@@ -28,7 +28,7 @@ $(document).ready(function(){
     };
 
     $('#stop_journey').click(function(){
-        window.location.href = "stop_journey"
+        window.location.href = "index"
     });
 
     sock.onclose = function(){
@@ -38,6 +38,7 @@ $(document).ready(function(){
 
     sock.onerror = function(error){
         showStory('Error');
-        console.log(error)
+        console.log(error);
+        console.log(arguments)
     }
 });

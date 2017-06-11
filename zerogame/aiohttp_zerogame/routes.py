@@ -1,13 +1,13 @@
 from os import path as os_path
 
-from .views import PageViews, WebSocket
+from zerogame.aiohttp_zerogame.views import PageViews, WebSocket
 
 
 views = PageViews()
 routes = [
     ('GET', '/index', views.index, 'index'),
     ('*', '/start', views.start, 'login'),
-    ('*', '/ws', WebSocket, 'ws')
+    ('GET', '/ws', WebSocket, 'game')
     ]
 
 
