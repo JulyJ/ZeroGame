@@ -1,14 +1,9 @@
 from datetime import datetime
-import random
 
 
 class Story:
     def __init__(self, db, **kwargs):
         self.collection = db.stories
-
-    async def get_story(self):
-        stories = self.collection.find()[random.randrange(self.collection.count())]
-        return await stories.to_list(length=None)
 
     async def save(self, character, story, **kw):
         result = await self.collection.insert({
@@ -17,3 +12,31 @@ class Story:
                                                'time': datetime.now()
                                                })
         return result
+
+
+class Event:
+    def __init__(self, db, character):
+        self.db = db
+        self.character = character
+
+    async def get_random_item(self, name):
+        pipeline = [{'$sample': {'size': 1}}]
+        async for doc in self.db[name].aggregate(pipeline):
+            return doc
+
+    async def get_event(self):
+        items = {}
+        names = await self.get_names()
+
+        for name in names:
+            item = await self.get_random_item(name)
+            items[name] = item.get('item')
+            items['character'] = self.character
+
+        return items['events'].format_map(items)
+
+    async def get_names(self):
+        names = []
+        async for doc in self.db.names.find({}):
+            names.append(doc.get('name'))
+        return names

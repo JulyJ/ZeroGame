@@ -18,14 +18,16 @@ class MongoClient:
         This function parses game process items (loot, event, etc) in line-separated text file and
         puts them into separate mongoDB collections.
         """
-
         file = self.filepath + filename
         name, _, _ = filename.partition('.')
         for line in [line.rstrip('\n') for line in open(file)]:
             self.db[name].update(
                 {'item': line},
-                {
-                    'item': line
-                },
+                {'item': line},
+                True
+            )
+            self.db.names.update(
+                {'name': name},
+                {'name': name},
                 True
             )
