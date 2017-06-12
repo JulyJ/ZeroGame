@@ -6,7 +6,7 @@ from aiohttp_session import get_session
 
 from zerogame.aiohttp_zerogame.config import log
 from zerogame.aiohttp_zerogame.user import User
-from zerogame.aiohttp_zerogame.game import Story, Event
+from zerogame.aiohttp_zerogame.game import Story
 
 
 def set_session(session, user_id):
@@ -42,6 +42,7 @@ class PageViews:
 
 class WebSocket(View):
     async def get(self):
+        journey = True
         resp = WebSocketResponse()
         await resp.prepare(self.request)
 
@@ -53,29 +54,21 @@ class WebSocket(View):
             await ws.send_str('game for {} started'.format(character))
         self.request.app['websockets'].append(resp)
 
-        for i in range(11):
-            for ws in self.request.app['websockets']:
-                try:
-                    event = Event(self.request.db, character)
-                    await ws.send_str(await event.get_event())
-                    sleep(2)
-                except Exception as e:
-                    log.debug('Exception: {e}'.format(e=e))
+        while journey:
+            try:
+                for ws in self.request.app['websockets']:
+                    story = Story(self.request.db, character)
+                    await ws.send_str(await story.get_event())
+            except Exception as e:
+                log.debug('General exception: {e}'.format(e=e))
+                journey = False
+            sleep(10)
 
         async for msg in resp:
             log.debug(msg)
             if msg.tp == WSMsgType.text:
                 if msg.data == 'close':
                     await resp.close()
-                else:
-                    story = Story(self.request.db)
-                    result = await story.save(character, msg.data)
-                    log.debug(result)
-                    try:
-                        for ws in self.request.app['websockets']:
-                            await ws.send_str('(%s) %s' % (character, msg.data))
-                    except Exception as e:
-                        log.debug(e)
             elif msg.tp == WSMsgType.error:
                 log.debug('ws connection closed with exception %s' % resp.exception())
 
