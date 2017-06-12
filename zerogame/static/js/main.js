@@ -11,12 +11,12 @@ $(document).ready(function(){
             height = 0,
             date = new Date();
             options = {hour12: false};
-        storyElem.append($('<p>').html('[' + date.toLocaleTimeString('en-US', options) + '] ' + story + '\n'));
+        storyElem.prepend($('<p>').html('[' + date.toLocaleTimeString('en-US', options) + '] ' + story + '\n'));
         storyElem.find('p').each(function(i, value){
             height += parseInt($(this).height());
         });
 
-        storyElem.animate({scrollTop: height});
+        storyElem.animate({scrollBottom: height});
     }
 
     sock.onopen = function(){
@@ -24,11 +24,11 @@ $(document).ready(function(){
     }
 
     sock.onmessage = function(event) {
-      showStory(event.data);
+        showStory(event.data);
     };
 
     $('#stop_journey').click(function(){
-        window.location.href = "index"
+        window.location.href = "/stop_journey"
     });
 
     sock.onclose = function(){

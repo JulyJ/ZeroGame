@@ -3,3 +3,13 @@ body {
     background-color: white;
     background-repeat: repeat;
 }
+
+#subscribe {
+    background-image: url("images/textarea.jpg");
+    background-repeat: repeat;
+    background-color: green;
+    height: 400px;
+    width: 800px;
+    overflow: hidden;
+    overflow-y: visible;
+}

@@ -1,17 +1,21 @@
-from time import time, sleep
+from time import time
 
-from aiohttp.web import WebSocketResponse, WSMsgType, View
+from aiohttp.web import View, HTTPFound, HTTPForbidden
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
 from zerogame.aiohttp_zerogame.config import log
 from zerogame.aiohttp_zerogame.user import User
-from zerogame.aiohttp_zerogame.game import Story
 
 
 def set_session(session, user_id):
     session['user'] = str(user_id)
     session['last_visit'] = time()
+
+
+def redirect(request, router):
+    url = request.app.router[router].url()
+    raise HTTPFound(url)
 
 
 class PageViews:
@@ -40,41 +44,11 @@ class PageViews:
                 'home_url': '/'}
 
 
-class WebSocket(View):
-    async def get(self):
-        journey = True
-        resp = WebSocketResponse()
-        await resp.prepare(self.request)
-
+class StopJourney(View):
+    async def get(self, **kw):
         session = await get_session(self.request)
-        user = User(self.request.db, {'id': session.get('user')})
-        character = await user.get_character()
-
-        for ws in self.request.app['websockets']:
-            await ws.send_str('game for {} started'.format(character))
-        self.request.app['websockets'].append(resp)
-
-        while journey:
-            try:
-                for ws in self.request.app['websockets']:
-                    story = Story(self.request.db, character)
-                    await ws.send_str(await story.get_event())
-            except Exception as e:
-                log.debug('General exception: {e}'.format(e=e))
-                journey = False
-            sleep(10)
-
-        async for msg in resp:
-            log.debug(msg)
-            if msg.tp == WSMsgType.text:
-                if msg.data == 'close':
-                    await resp.close()
-            elif msg.tp == WSMsgType.error:
-                log.debug('ws connection closed with exception %s' % resp.exception())
-
-        self.request.app['websockets'].remove(resp)
-        for ws in self.request.app['websockets']:
-            await ws.send_str('%s ended journey.' % character)
-            log.debug('websocket connection closed')
-
-        return resp
+        if session.get('user'):
+            del session['user']
+            redirect(self.request, 'index')
+        else:
+            raise HTTPForbidden()
