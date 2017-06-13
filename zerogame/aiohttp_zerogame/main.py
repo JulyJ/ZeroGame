@@ -25,7 +25,7 @@ class Server:
             authorize,
             mongo_handler
         ]
-        templates_path = str(path.dirname(__file__) + '/templates/')
+        templates_path = path.join(path.dirname(__file__), 'templates/')
 
         if DEBUG_MODE:
             middle.append(aiohttp_debugtoolbar.middleware)

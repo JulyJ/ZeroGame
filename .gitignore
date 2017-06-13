@@ -5,6 +5,5 @@
 .coverage
 .idea
 .tox
-items
 mongo_db
 
