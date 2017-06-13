@@ -1,0 +1,10 @@
+{loot} was picked by {character}
+{loot} was dropped by {character}
+{character} used {weapons}. {monsters} is no more.
+{monsters} used {skills}. {character} is bleeding.
+{character} is trying to use {loot}. Oh no, it is not a {weapons}!
+{character} arrives at {locations}.
+{locations} is near. May be {character} can find a {loot} there?
+{character} wants to go to {locations}. {monsters} thinks otherwise.
+{loot} is valuable. Congratulations {character}!
+{character} steals {loot} from {monsters}.

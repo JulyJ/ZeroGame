@@ -1,0 +1,10 @@
+loot1
+loot2
+loot3
+loot4
+loot5
+loot6
+loot7
+loot8
+loot9
+loot10
