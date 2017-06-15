@@ -4,8 +4,8 @@ from aiohttp.web import View, HTTPFound, HTTPForbidden
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from .config import log
-from .user import User
+from zerogame.aiohttp_zerogame.config import log
+from zerogame.aiohttp_zerogame.user import User
 
 
 def set_session(session, user_id):

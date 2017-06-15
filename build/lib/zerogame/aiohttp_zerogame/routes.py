@@ -1,12 +1,14 @@
 from os.path import dirname, abspath, join
 
-from .views import PageViews, StopJourney
+from zerogame.aiohttp_zerogame.views import PageViews, StopJourney
+from zerogame.aiohttp_zerogame.websockets import WebSocket
 
 
 views = PageViews()
 routes = [
     ('GET', '/index', views.index, 'index'),
     ('*', '/start', views.start, 'login'),
+    ('GET', '/ws', WebSocket, 'game'),
     ('*', '/stop_journey', StopJourney, 'stop_journey')
     ]
 

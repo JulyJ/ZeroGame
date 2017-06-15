@@ -9,14 +9,12 @@ from aiohttp import web
 from aiohttp_session import session_middleware, setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
-from sockjs import add_endpoint
 
 
-from .config import log, DEBUG_MODE
-from .middlewares import authorize, mongo_handler
-from .routes import setup_routes
-from .db import MongoClient
-from .websockets import WebSocket
+from zerogame.aiohttp_zerogame.config import log, DEBUG_MODE
+from zerogame.aiohttp_zerogame.middlewares import authorize, mongo_handler
+from zerogame.aiohttp_zerogame.routes import setup_routes
+from zerogame.aiohttp_zerogame.db import MongoClient
 
 
 class Server:
@@ -45,7 +43,6 @@ class Server:
             aiohttp_debugtoolbar.setup(app)
 
         setup_routes(app)
-
         setup_session(
             app,
             EncryptedCookieStorage(secret_key)
@@ -54,21 +51,14 @@ class Server:
         app.client = MongoClient()
         app.db = app.client.db
 
+        app['websockets'] = []
         app.on_shutdown.append(self.on_shutdown)
-
-        ws = WebSocket()
-        add_endpoint(app=app,
-                     prefix='/ws',
-                     handler=ws.msg_handler,
-                     name='ws'
-                     )
 
         handler = app.make_handler()
         server_generator = loop.create_server(handler, host='localhost', port=8080)
         return server_generator, handler, app
 
     def run_server(self):
-
         loop = asyncio.get_event_loop()
         server_generator, handler, app = loop.run_until_complete(self.init_server(loop))
         server = loop.run_until_complete(server_generator)
@@ -97,10 +87,15 @@ class Server:
         return base64.urlsafe_b64decode(fernet_key)
 
     @staticmethod
-    async def on_shutdown(app):    # kill ws
-        pass
+    async def on_shutdown(app):
+        for ws in app['websockets']:
+            await ws.close(code=1001, message='Server shutdown')
 
 
 def run():
     server = Server()
     server.run_server()
+
+
+if __name__ == '__main__':
+    run()

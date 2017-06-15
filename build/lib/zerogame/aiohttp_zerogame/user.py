@@ -1,6 +1,6 @@
 from bson import ObjectId
 
-from .config import log
+from zerogame.aiohttp_zerogame.config import log
 
 
 class User:

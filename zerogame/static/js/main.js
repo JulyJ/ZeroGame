@@ -1,10 +1,9 @@
 $(document).ready(function(){
-    try{
-        var sock = new WebSocket('ws://' + window.location.host + '/ws');
-    }
-    catch(err){
-        var sock = new WebSocket('wss://' + window.location.host + '/ws');
-    }
+    var sock = null;
+    function connect() {
+        disconnect();
+        sock = new SockJS('http://' + window.location.host + '/ws', {debug: true});
+        };
 
     function showStory(story) {
         var storyElem = $('#subscribe'),
@@ -18,6 +17,16 @@ $(document).ready(function(){
 
         storyElem.animate({scrollBottom: height});
     }
+
+    function disconnect() {
+        if (sock != null) {
+          log('Disconnecting...');
+          sock.close();
+          sock = null;
+        }
+      }
+
+    connect();
 
     sock.onopen = function(){
         showStory('Let the story begins...')
@@ -33,7 +42,7 @@ $(document).ready(function(){
 
     sock.onclose = function(){
         showStory('Story ended.')
-        conn = null;
+        sock = null;
     };
 
     sock.onerror = function(error){

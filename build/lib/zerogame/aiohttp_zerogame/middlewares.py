@@ -1,8 +1,8 @@
 from aiohttp import web
 from aiohttp_session import get_session
 
-from .config import log
-from .routes import routes
+from zerogame.aiohttp_zerogame.config import log
+from zerogame.aiohttp_zerogame.routes import routes
 
 
 async def authorize(app, handler):

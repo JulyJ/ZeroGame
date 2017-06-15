@@ -2,6 +2,12 @@ from logging import getLogger, DEBUG, basicConfig
 
 DEBUG_MODE = True
 
+log = getLogger('app')
+basicConfig(
+        format='%(levelname)-8s [%(asctime)s]  %(message)s', datefmt='%d-%m-%Y %H:%M:%S',
+        level=DEBUG,
+    )
+
 db_conf = {
     'database': 'zerogame',
     'user': 'user',
@@ -12,10 +18,3 @@ db_conf = {
     'maxsize': 10,
     'timeout': 60
 }
-
-
-log = getLogger()
-basicConfig(
-        format='%(levelname)-8s [%(asctime)s]  %(message)s', datefmt='%d-%m-%Y %H:%M:%S',
-        level=DEBUG,
-    )

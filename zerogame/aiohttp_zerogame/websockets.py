@@ -1,55 +1,39 @@
-from aiohttp.web import WebSocketResponse, View
-from aiohttp_session import get_session
-from asyncio import sleep
+import sockjs
+from aiohttp.web import View
+# from aiohttp_session import get_session
+# from asyncio import sleep
 
-from zerogame.aiohttp_zerogame.config import log
-from zerogame.aiohttp_zerogame.user import User
-from zerogame.aiohttp_zerogame.game import Story
+# from .game import Story
+# from .user import User
 
 
 class WebSocket(View):
-    async def get_event(self, character, resp):
-        try:
-            story = Story(self.request.db, character)
-            event = await story.get_event()
-            for ws in self.request.app['websockets']:
-                await ws.send_str('[{character}] {event}'.format(
-                    character=character,
-                    event=event
-                ))
-        except Exception as e:
-            log.debug('General exception: {e}'.format(e=e))
-            self.journey = False
-            self.request.app['websockets'].remove(resp)
-        await sleep(10)
-
-    async def get(self):
+    def __init__(self):
+        self.character = 'John Doe'
         self.journey = True
-        resp = WebSocketResponse()
-        await resp.prepare(self.request)
 
-        session = await get_session(self.request)
-        user = User(self.request.db, {'id': session.get('user')})
-        character = await user.get_character()
+    async def msg_handler(self, msg, session):
+        if msg.tp == sockjs.MSG_OPEN:
+            session.manager.broadcast('<b>Journey for {} started.</b>'.format(self.character))
+        elif msg.tp == sockjs.MSG_MESSAGE:
+            session.manager.broadcast(msg.data)
+        elif msg.tp == sockjs.MSG_CLOSED:
+            self.journey = False
+            session.manager.broadcast('<b>Journey for {} ended.</b>'.format(self.character))
 
-        for ws in self.request.app['websockets']:
-            await ws.send_str('<b>game for {} started</b>'.format(character))
-        self.request.app['websockets'].append(resp)
-
-        while self.journey:
-            await self.get_event(character, resp)
-
-        self.request.app['websockets'].remove(resp)
-        for ws in self.request.app['websockets']:
-            await ws.send_str('%s ended journey.' % character)
-            log.debug('websocket connection closed')
-
-        return resp
-
-        # async for msg in resp:
-        #     log.debug(msg)
-        #     if msg.tp == WSMsgType.text:
-        #         if msg.data == 'close':
-        #             await resp.close()
-        #     elif msg.tp == WSMsgType.error:
-        #         log.debug('ws connection closed with exception %s' % resp.exception())
+    # async def get_event(self, character, resp):
+    #     story = Story(self.request.db, character)
+    #     event = await story.get_event()
+    #     await send_str('[{character}] {event}'.format(
+    #         character=character,
+    #         event=event
+    #     ))
+    #     await sleep(10)
+    #
+    # async def get_character(self, session):
+    #     user = User(self.request.db, {'id': session.get('user')})
+    #     return await user.get_character()
+    #
+    # async def journey(self):
+    #     while self.journey:
+    #         await self.get_event(self.character, session)
