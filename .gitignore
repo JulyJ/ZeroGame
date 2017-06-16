@@ -8,3 +8,5 @@
 mongo_db
 build*
 dist*
+zerogame/__pycache__/
+zerogame/aiohttp_zerogame/__pycache__/

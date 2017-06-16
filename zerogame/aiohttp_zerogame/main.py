@@ -52,9 +52,8 @@ class Server:
         )
 
         app.client = MongoClient()
+        await app.client.update_names()
         app.db = app.client.db
-
-        app.on_shutdown.append(self.on_shutdown)
 
         ws = WebSocket()
         add_endpoint(app=app,
@@ -78,13 +77,14 @@ class Server:
         except KeyboardInterrupt:
             log.debug('Stopping server...')
         finally:
-            loop.run_until_complete(self.shutdown(server, app, handler))
-            loop.close()
+            server.close()
+            loop.run_until_complete(handler.finish_connections())
             log.debug('Server stopped.')
 
     @staticmethod
     async def shutdown(server, app, handler):
         server.close()
+        app.client.close()
         await server.wait_closed()
         await app.shutdown()
         await handler.finish_connections(10.0)
@@ -95,10 +95,6 @@ class Server:
         # secret_key must be 32 url-safe base64-encoded bytes
         fernet_key = fernet.Fernet.generate_key()
         return base64.urlsafe_b64decode(fernet_key)
-
-    @staticmethod
-    async def on_shutdown(app):    # kill ws
-        pass
 
 
 def run():

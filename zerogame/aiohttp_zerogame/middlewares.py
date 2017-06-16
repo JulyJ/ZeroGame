@@ -5,6 +5,14 @@ from .config import log
 from .routes import routes
 
 
+async def mongo_handler(app, handler):
+    async def middleware(request):
+        request.db = app.db
+        response = await handler(request)
+        return response
+    return middleware
+
+
 async def authorize(app, handler):
     async def middleware(request):
         def check_path(path):
@@ -20,16 +28,7 @@ async def authorize(app, handler):
         elif check_path(request.path):
             url = request.app.router['index'].url()
             raise web.HTTPFound(url)
-            return handler(request)
         else:
             return await handler(request)
 
-    return middleware
-
-
-async def mongo_handler(app, handler):
-    async def middleware(request):
-        request.db = app.db
-        response = await handler(request)
-        return response
     return middleware

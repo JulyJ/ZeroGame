@@ -4,7 +4,6 @@ from aiohttp.web import View, HTTPFound, HTTPForbidden
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
-from .config import log
 from .user import User
 
 
@@ -38,7 +37,6 @@ class PageViews:
             await user.create_user()
             result = await user.check_user()
         session = await get_session(request)
-        log.debug('Session: {}'.format(session))
         set_session(session, str(result['_id']))
         return {'text': 'Started!',
                 'home_url': '/'}

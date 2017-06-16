@@ -8,3 +8,4 @@
 {character} wants to go to {locations}. {monsters} thinks otherwise.
 {loot} is valuable. Congratulations {character}!
 {character} steals {loot} from {monsters}.
+{monsters} is retreating, leaving {loot} behind.
