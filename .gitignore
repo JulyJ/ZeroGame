@@ -6,4 +6,5 @@
 .idea
 .tox
 mongo_db
-
+build*
+dist*
