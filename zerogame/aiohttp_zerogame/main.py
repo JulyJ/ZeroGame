@@ -51,9 +51,9 @@ class Server:
             EncryptedCookieStorage(secret_key)
         )
 
-        app.client = MongoClient()
-        await app.client.update_names()
-        app.db = app.client.db
+        app.mongo = MongoClient()
+        await app.mongo.update_names()
+        app.db = app.mongo.db
 
         ws = WebSocket()
         app['websockets'] = []
@@ -85,6 +85,7 @@ class Server:
     @staticmethod
     async def shutdown(server, app, handler):
         server.close()
+        app.mongo.client.close()
         await server.wait_closed()
         await app.shutdown()
         for ws in app['websockets']:
