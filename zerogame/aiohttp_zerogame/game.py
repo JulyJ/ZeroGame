@@ -1,4 +1,9 @@
+from aiohttp_session import get_session
+from asyncio import sleep
 from datetime import datetime
+
+from .user import User
+from .config import log
 
 
 class Story:
@@ -36,3 +41,33 @@ class Story:
         async for doc in self.db.names.find({}):
             names.append(doc.get('name'))
         return names
+
+class Journey:
+    def __init__(self, request, *args, **kwargs):
+        self.request = request
+        self.session = get_session(self.request)
+        self.character = 'John Doe'
+        self.user = User(self.request.db, {'id': self.session.get('user')})
+        pass
+
+    async def start_journey(self):
+
+        while True:
+            await self.session.send(await self.get_event())
+            await sleep(10)
+
+    async def get_event(self):
+        story = Story(self.request.db, await self.user.get_character())
+        event = await story.get_event()
+        await sleep(10)
+        return '[{character}] {event}'.format(
+            character=self.character,
+            event=event
+        )
+        return 'event'
+
+class Game:
+    async def run_game(self):
+        while True:
+            log.debug('game is running...')
+            await sleep(10)

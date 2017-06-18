@@ -1,4 +1,4 @@
-import base64
+from base64 import urlsafe_b64decode
 from os import path
 
 import aiohttp_debugtoolbar
@@ -8,15 +8,16 @@ import jinja2
 from aiohttp import web, WSCloseCode
 from aiohttp_session import session_middleware, setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from cryptography import fernet
+from cryptography.fernet import Fernet
 from sockjs import add_endpoint
 
 
 from .config import log, DEBUG_MODE
+from .game import Game
 from .middlewares import authorize, mongo_handler
 from .routes import setup_routes
 from .db import MongoClient
-from .websockets import WebSocket
+from .websockets import WebSocket, RequestSessionManager
 
 
 class Server:
@@ -25,7 +26,7 @@ class Server:
         middle = [
             session_middleware(EncryptedCookieStorage(secret_key)),
             authorize,
-            mongo_handler
+            mongo_handler,
         ]
         templates_path = path.join(path.dirname(__file__), 'templates/')
 
@@ -34,7 +35,8 @@ class Server:
 
         app = web.Application(
             loop=loop,
-            middlewares=middle
+            middlewares=middle,
+            debug=DEBUG_MODE
         )
         aiohttp_jinja2.setup(
             app,
@@ -55,35 +57,47 @@ class Server:
         await app.mongo.update_names()
         app.db = app.mongo.db
 
-        ws = WebSocket()
+        app.ws = WebSocket()
         app['websockets'] = []
+        request_session_manager = RequestSessionManager(
+            name='ws',
+            app=app,
+            handler=app.ws.msg_handler,
+            loop=loop,
+        )
         add_endpoint(app=app,
                      prefix='/ws',
-                     handler=ws.msg_handler,
-                     name='ws'
+                     handler=app.ws.msg_handler,
+                     name='ws',
+                     manager=request_session_manager
                      )
 
-        handler = app.make_handler()
+        handler = app.make_handler(debug=DEBUG_MODE)
         server_generator = loop.create_server(handler, host='localhost', port=8080)
-        return server_generator, handler, app
+
+        game = Game()
+        app.game = game
+
+        return server_generator, handler, app, game
 
     def run_server(self):
 
         loop = asyncio.get_event_loop()
-        server_generator, handler, app = loop.run_until_complete(self.init_server(loop))
+        server_generator, handler, app, game = loop.run_until_complete(self.init_server(loop))
         server = loop.run_until_complete(server_generator)
         log.debug('Starting server %s' % str(server.sockets[0].getsockname()))
         try:
+            game = loop.run_until_complete(game.run_game())
             loop.run_forever()
         except KeyboardInterrupt:
             log.debug('Stopping server...')
         finally:
+            loop.run_until_complete(self.shutdown(server, app, handler, game))
             server.close()
-            loop.run_until_complete(self.shutdown(server, app, handler))
             log.debug('Server stopped.')
 
     @staticmethod
-    async def shutdown(server, app, handler):
+    async def shutdown(server, app, handler, game):
         server.close()
         app.mongo.client.close()
         await server.wait_closed()
@@ -96,8 +110,8 @@ class Server:
     @staticmethod
     def make_secret():
         # secret_key must be 32 url-safe base64-encoded bytes
-        fernet_key = fernet.Fernet.generate_key()
-        return base64.urlsafe_b64decode(fernet_key)
+        fernet_key = Fernet.generate_key()
+        return urlsafe_b64decode(fernet_key)
 
 
 def run():
