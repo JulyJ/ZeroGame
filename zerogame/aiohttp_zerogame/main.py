@@ -5,7 +5,7 @@ import aiohttp_debugtoolbar
 import aiohttp_jinja2
 import asyncio
 import jinja2
-from aiohttp import web
+from aiohttp import web, WSCloseCode
 from aiohttp_session import session_middleware, setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
@@ -56,6 +56,7 @@ class Server:
         app.db = app.client.db
 
         ws = WebSocket()
+        app['websockets'] = []
         add_endpoint(app=app,
                      prefix='/ws',
                      handler=ws.msg_handler,
@@ -78,16 +79,17 @@ class Server:
             log.debug('Stopping server...')
         finally:
             server.close()
-            loop.run_until_complete(handler.finish_connections())
+            loop.run_until_complete(self.shutdown(server, app, handler))
             log.debug('Server stopped.')
 
     @staticmethod
     async def shutdown(server, app, handler):
         server.close()
-        app.client.close()
         await server.wait_closed()
         await app.shutdown()
-        await handler.finish_connections(10.0)
+        for ws in app['websockets']:
+            ws.close(WSCloseCode.GOING_AWAY)
+            log.debug('Session {} closed.'.format(ws.id))
         await app.cleanup()
 
     @staticmethod
