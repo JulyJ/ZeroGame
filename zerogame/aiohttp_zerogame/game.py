@@ -1,8 +1,6 @@
 from asyncio import sleep
 from datetime import datetime
-
-from .user import User
-from .config import log
+from random import randrange
 
 
 class Story:
@@ -43,27 +41,29 @@ class Story:
 
 
 class Journey:
-    def __init__(self, app, handler, *args, **kwargs):
+    def __init__(self, app):
         self.app = app
-        self.handler = handler
 
-    async def get_event(self, ws_session, session):
-        user = User(self.app.db, {'id': session.get('user')})
-        story = Story(self.app.db, await user.get_character())
+    async def get_event(self, ws):
+        story = Story(self.app.db, character=ws.user.character_name)
         event = await story.get_event()
-        await sleep(10)
         return '[{character}] {event}'.format(
-            character=self.character,
+            character=ws.user.character_name,
             event=event
         )
 
 
 class Game:
-    def __init__(self, app, handler, *args, **kwargs):
+    def __init__(self, app, *args, **kwargs):
         self.app = app
-        self.handler = handler
+        self.running = True
 
     async def run_game(self):
-        while True:
-            log.debug('game is running...')
-            await sleep(10)
+        while self.running:
+            for ws in self.app['websockets']:
+                journey = Journey(self.app)
+                ws.manager.broadcast(await journey.get_event(ws))
+            await sleep(randrange(15))
+
+    def close(self):
+        pass

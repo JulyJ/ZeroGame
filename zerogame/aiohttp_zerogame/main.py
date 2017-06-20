@@ -87,19 +87,19 @@ class Server:
         server = loop.run_until_complete(server_generator)
         log.debug('Starting server %s' % str(server.sockets[0].getsockname()))
         try:
-            game = loop.run_until_complete(game.run_game())
+            loop.run_until_complete(game.run_game())
             loop.run_forever()
         except KeyboardInterrupt:
             log.debug('Stopping server...')
         finally:
             loop.run_until_complete(self.shutdown(server, app, handler, game))
-            server.close()
             log.debug('Server stopped.')
 
     @staticmethod
     async def shutdown(server, app, handler, game):
         server.close()
         app.mongo.client.close()
+        game.close()
         await server.wait_closed()
         await app.shutdown()
         for ws in app['websockets']:

@@ -33,3 +33,9 @@ class User:
             result = 'User exists'
             log.debug('Existing user: {}'.format(self.email))
         return result
+
+    async def get_user(self, id):
+        user = await self.collection.find_one({'_id': ObjectId(self.id)})
+        self.email = user.get('email')
+        self.name = user.get('name')
+        self.character_name = user.get('character_name')
