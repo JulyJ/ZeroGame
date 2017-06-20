@@ -1,15 +1,21 @@
 import sockjs
+from aiohttp_session import get_session
+
+from .user import User
 
 
 class WebSocket:
     async def msg_handler(self, msg, ws_session, *args, **kwargs):
+        ws_session.aio_session = await get_session(request=ws_session.request)
+        user = User(ws_session.manager.app.db, {'id': ws_session.aio_session.get('user')})
+        character = await user.get_character()
         if msg.tp == sockjs.MSG_OPEN:
-            ws_session.manager.broadcast('<b>Journey started.</b>')
+            ws_session.manager.broadcast('<b>{} started journey.</b>'.format(character))
             ws_session.manager.app['websockets'].append(ws_session)
         elif msg.tp == sockjs.MSG_MESSAGE:
             ws_session.manager.broadcast(msg.data)
         elif msg.tp == sockjs.MSG_CLOSED:
-            ws_session.manager.broadcast('<b>Journey ended.</b>')
+            ws_session.manager.broadcast('<b>{} ended journey.</b>'.format(character))
             ws_session.manager.app['websockets'].remove(ws_session)
 
 

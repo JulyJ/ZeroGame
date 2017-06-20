@@ -75,7 +75,7 @@ class Server:
         handler = app.make_handler(debug=DEBUG_MODE)
         server_generator = loop.create_server(handler, host='localhost', port=8080)
 
-        game = Game()
+        game = Game(app, handler)
         app.game = game
 
         return server_generator, handler, app, game
