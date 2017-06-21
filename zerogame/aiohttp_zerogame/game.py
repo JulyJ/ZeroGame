@@ -4,6 +4,7 @@ from random import randrange
 
 from .config import log
 
+
 class Story:
     def __init__(self, db, character, **kwargs):
         self.collection = db.stories
@@ -69,7 +70,7 @@ class Game:
                 except AttributeError as e:
                     log.debug('AttributeError: %s' % e)
                     self.app['websockets'].remove(ws)
-                    log.debug('Session removed: %s' %ws.id)
+                    log.debug('Session removed: %s' % ws.id)
                     continue
             await sleep(1)
 

@@ -1,7 +1,6 @@
 import sockjs
 from aiohttp_session import get_session
 
-from .config import log
 from .user import User
 
 
