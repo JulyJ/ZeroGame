@@ -2,6 +2,7 @@ from asyncio import sleep
 from datetime import datetime
 from random import randrange
 
+from .config import log
 
 class Story:
     def __init__(self, db, character, **kwargs):
@@ -47,6 +48,7 @@ class Journey:
     async def get_event(self, ws):
         story = Story(self.app.db, character=ws.user.character_name)
         event = await story.get_event()
+        await sleep(randrange(15))
         return '[{character}] {event}'.format(
             character=ws.user.character_name,
             event=event
@@ -62,8 +64,14 @@ class Game:
         while self.running:
             for ws in self.app['websockets']:
                 journey = Journey(self.app)
-                ws.manager.broadcast(await journey.get_event(ws))
-            await sleep(randrange(15))
+                try:
+                    ws.manager.broadcast(await journey.get_event(ws))
+                except AttributeError as e:
+                    log.debug('AttributeError: %s' % e)
+                    self.app['websockets'].remove(ws)
+                    log.debug('Session removed: %s' %ws.id)
+                    continue
+            await sleep(1)
 
     def close(self):
         pass

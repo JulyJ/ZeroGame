@@ -21,15 +21,9 @@ async def authorize(app, handler):
                         or request.path.startswith('/ws')
                         or request.path.startswith('/_debugtoolbar'))
 
-        session = await get_session(request)
         if check_path(request.path):
             url = request.app.router['index'].url()
             raise web.HTTPFound(url)
-        if session.get("user"):
-            last_visit = session.get('last_visit', None)
-            log.debug('Last visited set: {}'.format(last_visit))
-            return await handler(request)
-        else:
-            return await handler(request)
+        return await handler(request)
 
     return middleware
