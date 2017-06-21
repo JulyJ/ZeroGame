@@ -1,5 +1,7 @@
 from bson import ObjectId
 
+from asyncio import CancelledError
+
 from .config import log
 
 
@@ -35,7 +37,11 @@ class User:
         return result
 
     async def get_user(self, id):
-        user = await self.collection.find_one({'_id': ObjectId(self.id)})
+        try:
+            user = await self.collection.find_one({'_id': ObjectId(self.id)})
+        except CancelledError:
+            log.debug('Async operation was canceled.')
+            return
         self.email = user.get('email')
         self.name = user.get('name')
         self.character_name = user.get('character_name')
