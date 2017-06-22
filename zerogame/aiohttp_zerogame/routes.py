@@ -1,13 +1,16 @@
 from os.path import dirname, abspath, join
 
+from .auth import AuthRoute
 from .views import PageViews, StopJourney
 
 
 views = PageViews()
+route = AuthRoute()
 routes = [
     ('GET', '/index', views.index, 'index'),
     ('*', '/start', views.start, 'login'),
-    ('*', '/stop_journey', StopJourney, 'stop_journey')
+    ('*', '/stop_journey', StopJourney, 'stop_journey'),
+    ('GET', '/oauth/{provider}', route.oauth, 'oauth')
     ]
 
 

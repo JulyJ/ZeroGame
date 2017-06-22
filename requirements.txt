@@ -1,3 +1,4 @@
+aioauth-client
 aiohttp
 aiohttp_debugtoolbar
 aiohttp_jinja2

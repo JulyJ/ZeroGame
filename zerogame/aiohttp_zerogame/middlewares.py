@@ -17,6 +17,7 @@ async def authorize(app, handler):
             return not (any(path.startswith(route_path) for _, route_path, _, _ in routes)
                         or request.path.startswith('/static/')
                         or request.path.startswith('/ws')
+                        or request.path.startswith('/oauth')
                         or request.path.startswith('/_debugtoolbar'))
 
         if check_path(request.path):
