@@ -1,15 +1,17 @@
 from base64 import urlsafe_b64decode
 from os import path
 
-import aiohttp_debugtoolbar
-import aiohttp_jinja2
-import asyncio
-import jinja2
 from aiohttp import web, WSCloseCode
+from aiohttp_debugtoolbar import (setup as debugtoolbar_setup,
+                                  middleware as debugtoolbar_middleware)
+from aiohttp_jinja2 import setup as jinja2_setup
 from aiohttp_session import session_middleware, setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
+from asyncio import set_event_loop
 from cryptography.fernet import Fernet
+from jinja2 import FileSystemLoader
 from sockjs import add_endpoint
+from uvloop import new_event_loop
 
 
 from .config import log, DEBUG_MODE
@@ -31,20 +33,20 @@ class Server:
         templates_path = path.join(path.dirname(__file__), 'templates/')
 
         if DEBUG_MODE:
-            middle.append(aiohttp_debugtoolbar.middleware)
+            middle.append(debugtoolbar_middleware)
 
         app = web.Application(
             loop=loop,
             middlewares=middle,
             debug=DEBUG_MODE
         )
-        aiohttp_jinja2.setup(
+        jinja2_setup(
             app,
-            loader=jinja2.FileSystemLoader(templates_path)
+            loader=FileSystemLoader(templates_path)
         )
 
         if DEBUG_MODE:
-            aiohttp_debugtoolbar.setup(app)
+            debugtoolbar_setup(app)
 
         setup_routes(app)
 
@@ -82,7 +84,9 @@ class Server:
 
     def run_server(self):
 
-        loop = asyncio.get_event_loop()
+        loop = new_event_loop()
+        set_event_loop(loop)
+
         server_generator, handler, app, game = loop.run_until_complete(self.init_server(loop))
         server = loop.run_until_complete(server_generator)
         log.debug('Starting server %s' % str(server.sockets[0].getsockname()))
