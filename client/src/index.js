@@ -1,36 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-    Route,
-    BrowserRouter as Router,
-    Switch,
-    Redirect
-} from 'react-router-dom';
-import registerServiceWorker from './registerServiceWorker';
-import './App.css';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import { applyMiddleware, createStore, combineReducers, compose } from 'redux';
 
 import RootComponent from './components/root';
-import Header from './components/layout/header';
-import { PageContainer } from './components/layout/common';
-import IndexPage from './pages/index';
-import GamePage from './pages/start';
+import gameReducer from './reducers/game';
 
-const FourOFour = (props) => {
-    return (<div>404</div>);
-};
+const reducers = combineReducers({
+    game: gameReducer
+});
 
-ReactDOM.render(
-    <Router>
-        <div className="App">
-            <Header />
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-            <PageContainer>
-                <Switch>
-                    <Route exact path="/" component={IndexPage} />
-                    <Route path="/game" component={GamePage} />
-                    <Route path="*" component={FourOFour} />
-                </Switch>
-            </PageContainer>
-        </div>
-    </Router>, document.getElementById('root'));
-registerServiceWorker();
+const store = createStore(
+    reducers,
+    composeEnhancers(applyMiddleware(thunk))
+);
+
+ReactDOM.render((
+    <Provider store={store}>
+        <RootComponent />
+    </Provider>
+), document.getElementById('root'));

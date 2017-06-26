@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import StartGameForm from '../components/forms/start-game';
+import { startGame } from '../actions/game';
 
-class App extends Component {
+class IndexPage extends Component {
     constructor(props) {
         super(props);
 
@@ -15,7 +17,11 @@ class App extends Component {
     }
 
     handleSubmit(data) {
-        this.setState({ fireRedirect: true });
+        const { handleStartGame } = this.props;
+
+        this.setState({ fireRedirect: true }, () => {
+            handleStartGame(data.name, data.email, data.characterName);
+        });
     }
 
     render() {
@@ -26,10 +32,24 @@ class App extends Component {
                 <StartGameForm onSubmit={this.handleSubmit} />
 
                 {fireRedirect &&
-                    <Redirect to="/game" />}
+                    <Redirect push={true} to="/game" />}
             </div>
         );
     }
-}
+};
 
-export default App;
+const mapStateToProps = () => {
+    return {};
+};
+const mapDispatchToProps = (dispatch) => {
+    return {
+        handleStartGame: (name, email, characterName) => {
+            dispatch(startGame(name, email, characterName));
+        }
+    };
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(IndexPage);
