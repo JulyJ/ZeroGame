@@ -1,6 +1,7 @@
+from json import dumps
 from time import time
 
-from aiohttp.web import View, HTTPFound, HTTPForbidden
+from aiohttp.web import View, HTTPFound, HTTPForbidden, Response
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
@@ -52,3 +53,27 @@ class StopJourney(View):
             redirect(self.request, 'index')
         else:
             raise HTTPForbidden()
+
+
+class ClientStart(View):
+    async def options(self):
+        return Response(text='text',
+                        headers={'Allow': 'OPTIONS, POST',
+                                 'Access-Control-Allow-Origin': '*',
+                                 'Access-Control-Allow-Headers': 'Content-Type'})
+
+    async def post(self, **kw):
+        data = await self.request.post()
+        user = User(self.request.db, data)
+        result = await user.check_user()
+        if not isinstance(result, dict):
+            await user.create_user()
+            result = await user.check_user()
+        session = await get_session(self.request)
+        set_session(session, str(result['_id']))
+        return Response(
+            text=dumps({
+                'id': str(result['_id']),
+                'name': str(result['name'])
+            })
+        )

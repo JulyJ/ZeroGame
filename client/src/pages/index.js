@@ -18,10 +18,9 @@ class IndexPage extends Component {
 
     handleSubmit(data) {
         const { handleStartGame } = this.props;
+        handleStartGame(data.name, data.email, data.characterName);
 
-        this.setState({ fireRedirect: true }, () => {
-            handleStartGame(data.name, data.email, data.characterName);
-        });
+        this.setState({ fireRedirect: true });
     }
 
     render() {

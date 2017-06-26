@@ -17,7 +17,7 @@ from uvloop import new_event_loop
 from .config import log, DEBUG_MODE
 from .game import Game
 from .middlewares import authorize, mongo_handler
-from .routes import setup_routes
+from .routes import setup_routes, setup_cors
 from .db import MongoClient
 from .websockets import WebSocket, RequestSessionManager
 
@@ -49,6 +49,7 @@ class Server:
             debugtoolbar_setup(app)
 
         setup_routes(app)
+        setup_cors(app)
 
         setup_session(
             app,
