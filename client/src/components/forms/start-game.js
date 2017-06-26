@@ -37,6 +37,7 @@ class StartGameForm extends React.Component {
 
         return (
             <form onSubmit={this.handleSubmit}>
+                <div style={{display: "none"}}>
                 <ul>
                     <a href="/oauth/bitbucket">Login with Bitbucket</a><br />
                     <a href="/oauth/facebook">Login with Facebook</a><br />
@@ -44,6 +45,7 @@ class StartGameForm extends React.Component {
                     <a href="/oauth/google">Login with Google</a><br />
                     <a href="/oauth/twitter">Login with Twitter</a><br />
                 </ul>
+                </div>
 
                 <h4>Create character or login with existing:</h4>
                 E-mail (unique):

@@ -1,7 +1,6 @@
 $(document).ready(function(){
     var sock = null;
     function connect() {
-        disconnect();
         sock = new SockJS('http://' + window.location.host + '/ws', {debug: true});
         };
 
@@ -30,6 +29,9 @@ $(document).ready(function(){
 
     sock.onopen = function(){
         showStory('Let the story begins...')
+        setTimeout(function () {
+            sock.send(JSON.stringify({command: 'start_journey'}));
+        }, 1000)
     }
 
     sock.onmessage = function(event) {

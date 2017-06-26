@@ -6,11 +6,13 @@ import {
     Switch,
     Redirect
 } from 'react-router-dom';
-import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import './index.css';
+import './App.css';
 
 import RootComponent from './components/root';
+import Header from './components/layout/header';
+import { PageContainer } from './components/layout/common';
+import IndexPage from './pages/index';
 import GamePage from './pages/start';
 
 const FourOFour = (props) => {
@@ -19,12 +21,16 @@ const FourOFour = (props) => {
 
 ReactDOM.render(
     <Router>
-        <div>
-            <Switch>
-                <Route exact path="/" component={App} />
-                <Route path="/game" component={GamePage} />
-                <Route path="*" component={FourOFour} />
-            </Switch>
+        <div className="App">
+            <Header />
+
+            <PageContainer>
+                <Switch>
+                    <Route exact path="/" component={IndexPage} />
+                    <Route path="/game" component={GamePage} />
+                    <Route path="*" component={FourOFour} />
+                </Switch>
+            </PageContainer>
         </div>
     </Router>, document.getElementById('root'));
 registerServiceWorker();
