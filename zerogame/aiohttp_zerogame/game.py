@@ -1,5 +1,6 @@
 from asyncio import sleep
 from datetime import datetime
+from time import gmtime, strftime
 from random import randrange
 
 from .config import log
@@ -12,11 +13,13 @@ class Story:
         self.character = character
 
     async def save(self, character, story, **kw):
-        result = await self.collection.insert({
-                                               'character': character,
-                                               'story': story,
-                                               'time': datetime.now()
-                                               })
+        result = await self.collection.insert(
+            {
+                'character': character,
+                'story': story,
+                'time': strftime("%Y-%m-%d %H:%M:%S", gmtime())
+            }
+        )
         return result
 
     async def get_random_item(self, name):
@@ -50,9 +53,10 @@ class Journey:
         story = Story(self.app.db, character=ws.user.character_name)
         event = await story.get_event()
         await sleep(randrange(15))
-        return '[{character}] {event}'.format(
+        return '[{time}] [{character}] {event}'.format(
             character=ws.user.character_name,
-            event=event
+            event=event,
+            time=strftime("%H:%M:%S", gmtime())
         )
 
 

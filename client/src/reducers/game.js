@@ -1,9 +1,11 @@
 import * as gameActions from '../actions/game';
 
 const initialState = {
+    id: null,
     name: '',
     characterName: '',
-    email: ''
+    email: '',
+    messages: []
 };
 
 const gameReducer = (state = initialState, action) => {
@@ -14,6 +16,19 @@ const gameReducer = (state = initialState, action) => {
                 name: action.name,
                 characterName: action.characterName,
                 email: action.email
+            };
+        case gameActions.USER_DATA_RECEIVED:
+            return {
+                ...state,
+                id: action.userData.id
+            };
+        case gameActions.MESSAGE_RECEIVED:
+            return {
+                ...state,
+                messages: [
+                    action.message,
+                    ...state.messages
+                ]
             }
         default:
             return state;
