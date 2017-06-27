@@ -5,6 +5,7 @@ from aiohttp.web import View, HTTPFound, HTTPForbidden, Response
 import aiohttp_jinja2
 from aiohttp_session import get_session
 
+from .config import client_url
 from .user import User
 
 
@@ -56,14 +57,13 @@ class StopJourney(View):
 
 
 class ClientStart(View):
-    async def options(self):
-        return Response(text='text',
-                        headers={'Allow': 'OPTIONS, POST',
-                                 'Access-Control-Allow-Origin': '*',
+    async def options(self):   # https://github.com/aio-libs/aiohttp-cors/issues/41
+        return Response(headers={'Allow': 'OPTIONS, POST',
+                                 'Access-Control-Allow-Origin': client_url,
                                  'Access-Control-Allow-Headers': 'Content-Type'})
 
     async def post(self, **kw):
-        data = await self.request.post()
+        data = await self.request.json()
         user = User(self.request.db, data)
         result = await user.check_user()
         if not isinstance(result, dict):
@@ -74,6 +74,8 @@ class ClientStart(View):
         return Response(
             text=dumps({
                 'id': str(result['_id']),
-                'name': str(result['name'])
+                'name': str(result['name']),
+                'character_name': str(result['character_name']),
+                'email': str(result['email'])
             })
         )

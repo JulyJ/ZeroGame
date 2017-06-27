@@ -13,6 +13,8 @@ db_conf = {
     'timeout': 60
 }
 
+server_url = 'http://localhost:8080'
+client_url = 'http://localhost:3000'
 
 log = getLogger()
 basicConfig(

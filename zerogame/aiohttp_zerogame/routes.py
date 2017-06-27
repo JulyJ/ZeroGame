@@ -3,6 +3,7 @@ from os.path import dirname, abspath, join
 from aiohttp_cors import ResourceOptions, setup as cors_setup
 
 from .auth import AuthRoute
+from .config import client_url
 from .views import PageViews, StopJourney, ClientStart
 
 
@@ -31,11 +32,8 @@ def setup_cors(app):
     cors.add(
         resource.add_route('POST', ClientStart),
         {
-            '*': ResourceOptions(
-                allow_methods=['POST'],
-                allow_credentials=True,
-                expose_headers='*',
-                allow_headers='*'
+            client_url: ResourceOptions(
+                allow_methods=['POST']
             )
         },
     )

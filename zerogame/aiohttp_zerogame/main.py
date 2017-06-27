@@ -107,6 +107,7 @@ class Server:
         game.close()
         await server.wait_closed()
         await app.shutdown()
+        await handler.shutdown(60.0)
         for ws in app['websockets']:
             ws.close(WSCloseCode.GOING_AWAY)
             log.debug('Session {} closed.'.format(ws.id))
