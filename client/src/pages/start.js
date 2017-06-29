@@ -1,7 +1,8 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { connectToGameServer, connectWebsocket } from '../services/game';
+import { connectToGameServer, connectWebsocket, disconnectWebsocket } from '../services/game';
 import { userDataReceived, messageReceived } from '../actions/game';
 import GameMessages from '../components/game/game-messages';
 
@@ -10,8 +11,18 @@ class StartPage extends React.Component {
         super(props);
 
         this.state = {
-            isLoading: true
+            isLoading: true,
+            fireRedirect: false
         };
+
+        this.handleStopJourney = this.handleStopJourney.bind(this);
+    }
+
+    handleStopJourney () {
+        this.setState({
+            fireRedirect: true,
+        });
+        disconnectWebsocket()
     }
 
     async componentDidMount () {
@@ -60,15 +71,22 @@ class StartPage extends React.Component {
             return this.renderLoading();
         }
 
+        const { fireRedirect } = this.state;
+
         return (
             <div>
-                Let the journey begin!
-
-                <div>{id} - {name}</div>
-                <div>{email}</div>
-                <div>{characterName}</div>
-
+                Let the journey begin, {name}!
+                <div>
+                    <button onClick={this.handleStopJourney}>
+                        Stop Journey
+                    </button>
+                </div>
                 <GameMessages />
+                <div>
+                {fireRedirect &&
+                    <Redirect push={true} to="/" />}
+                </div>
+
             </div>
         );
     }

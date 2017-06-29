@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 
 import StartGameForm from '../components/forms/start-game';
 import { startGame } from '../actions/game';
+import { disconnectWebsocket } from '../services/game';
+
 
 class IndexPage extends Component {
     constructor(props) {
@@ -19,7 +21,7 @@ class IndexPage extends Component {
     handleSubmit(data) {
         const { handleStartGame } = this.props;
         handleStartGame(data.name, data.email, data.characterName);
-
+        disconnectWebsocket()
         this.setState({ fireRedirect: true });
     }
 

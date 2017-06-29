@@ -40,3 +40,12 @@ export const connectWebsocket = (userData, onMessageReceived) => {
         console.log('close');
     };
 };
+
+export const disconnectWebsocket = (e) => {
+    if (sock != null) {
+        sock.send(JSON.stringify({
+            command: 'stop_journey'
+        }));
+        sock.close()
+    }
+};

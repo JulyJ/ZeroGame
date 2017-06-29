@@ -87,6 +87,7 @@ class Server:
 
         loop = new_event_loop()
         set_event_loop(loop)
+        loop.set_debug(DEBUG_MODE)
 
         server_generator, handler, app, game = loop.run_until_complete(self.init_server(loop))
         server = loop.run_until_complete(server_generator)
@@ -99,6 +100,7 @@ class Server:
         finally:
             loop.run_until_complete(self.shutdown(server, app, handler, game))
             log.debug('Server stopped.')
+        loop.close()
 
     @staticmethod
     async def shutdown(server, app, handler, game):
@@ -107,7 +109,7 @@ class Server:
         game.close()
         await server.wait_closed()
         await app.shutdown()
-        await handler.shutdown(60.0)
+        await handler.shutdown(1)
         for ws in app['websockets']:
             ws.close(WSCloseCode.GOING_AWAY)
             log.debug('Session {} closed.'.format(ws.id))

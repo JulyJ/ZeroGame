@@ -32,8 +32,9 @@ class WebSocket:
         self.ws_session.manager.broadcast('{} started journey.'.format(
             self.ws_session.user.character_name))
 
-    async def stop_journey(self):
-        self.ws_session.app['websockets'].remove(self.ws_session)
+    async def stop_journey(self, user_data):
+        self.ws_session.close()
+
 
     @staticmethod
     async def unknown_command():
