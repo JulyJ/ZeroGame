@@ -14,7 +14,7 @@ class StartPage extends React.Component {
         };
     }
 
-    componentDidMount () {
+    async componentDidMount () {
         const {
             name,
             email,
@@ -22,19 +22,19 @@ class StartPage extends React.Component {
             onUserDataReceived,
             onMessageReceived
         } = this.props;
+ 
+        try {
+            const userData = await connectToGameServer(name, email, characterName);
+            onUserDataReceived(userData);
 
-        connectToGameServer(name, email, characterName).then((res) => {
-            onUserDataReceived(res);
-
-            return res;
-        }).then((res) => {
-            connectWebsocket(res, onMessageReceived);
-        }).catch((err) => {
+            connectWebsocket(userData, onMessageReceived);
+        } catch (err) {
             console.error(err);
-        }).then(() => {
-            this.setState({
-                isLoading: false
-            });
+
+        }
+        
+        this.setState({
+            isLoading: false
         });
     }
 

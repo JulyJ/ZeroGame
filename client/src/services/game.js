@@ -1,7 +1,7 @@
 import SockJS from 'sockjs-client';
 
-export const connectToGameServer = (name, email, characterName) => {
-    return fetch('http://localhost:8080/client_start', {
+export async function connectToGameServer (name, email, characterName) {
+    const res = await fetch('http://localhost:8080/client_start', {
         method: 'post',
         mode: 'cors',
         credentials: true,
@@ -13,7 +13,9 @@ export const connectToGameServer = (name, email, characterName) => {
             name,
             character_name: characterName
         })
-    }).then((res) => res.json());
+    });
+    
+    return res.json();
 };
 
 let sock = null;
