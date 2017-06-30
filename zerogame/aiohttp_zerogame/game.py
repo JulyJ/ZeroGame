@@ -2,6 +2,7 @@ from asyncio import sleep
 from datetime import datetime
 from time import gmtime, strftime
 from random import randrange
+from uuid import uuid4
 
 from .config import log
 
@@ -45,19 +46,27 @@ class Story:
         return names
 
 
-class Journey:
+class Room:
     def __init__(self, app):
+        self.uuid = uuid4()
+        self.capacity = 4
+        self.available = True
+        self.members = []
         self.app = app
 
-    async def get_event(self, ws):
-        story = Story(self.app.db, character=ws.user.character_name)
-        event = await story.get_event()
-        await sleep(randrange(15))
-        return '[{time}] [{character}] {event}'.format(
-            character=ws.user.character_name,
-            event=event,
-            time=strftime("%H:%M:%S", gmtime())
-        )
+    async def append_room(self):
+        self.app['rooms'].append(self)
+        log.debug('Room {} created'.format(self.uuid))
+
+    async def delete_room(self):
+        self.app['rooms'].delete(self)
+        log.debug('Room {} deleted'.format(self.uuid))
+
+    async def check_room(self):
+        if len(self.members) >= 4:
+            self.available = False
+        elif len(self.members) == 0:
+            self.delete_room()
 
 
 class Game:
@@ -68,15 +77,24 @@ class Game:
     async def run_game(self):
         while self.running:
             for ws in self.app['websockets']:
-                journey = Journey(self.app)
                 try:
-                    ws.manager.broadcast(await journey.get_event(ws))
+                    ws.manager.broadcast(await self.get_event(ws))
                 except AttributeError as e:
                     log.debug('AttributeError: %s' % e)
                     self.app['websockets'].remove(ws)
                     log.debug('Session removed: %s' % ws.id)
                     continue
             await sleep(1)
+
+    async def get_event(self, ws):
+        story = Story(self.app.db, character=ws.user.character_name)
+        event = await story.get_event()
+        await sleep(randrange(15))
+        return '[{time}] [{character}] {event}'.format(
+            character=ws.user.character_name,
+            event=event,
+            time=strftime("%H:%M:%S", gmtime())
+        )
 
     def close(self):
         pass
