@@ -1,5 +1,4 @@
 from json import loads
-from random import choice
 
 from sockjs import MSG_CLOSED, MSG_MESSAGE, MSG_OPEN, SessionManager
 from aiohttp_session import get_session
@@ -19,7 +18,8 @@ class WebSocket:
         elif msg.tp == MSG_MESSAGE:
             await self.route_message(msg)
         elif msg.tp == MSG_CLOSED:
-            self.ws_session.manager.broadcast('{} ended journey.'.format(
+            for ws in self.room.members:
+                ws.send('{} ended journey.'.format(
                 self.ws_session.user.character_name))
             self.ws_session.app['websockets'].remove(self.ws_session)
 
@@ -36,12 +36,18 @@ class WebSocket:
         self.room.members.append(self.ws_session)
         self.ws_session.room = self.room.uuid
         log.debug('Session {f.id} was appended to room {f.room}'.format(f=self.ws_session))
-        self.ws_session.manager.broadcast('{} started journey.'.format(
+        for ws in self.room.members:
+            ws.send('{} started journey.'.format(
             self.ws_session.user.character_name))
 
     async def stop_journey(self, user_data):
-        self.room.members.remove(self.ws_session)
+        try:
+            self.room.members.remove(self.ws_session)
+        except ValueError:
+            log.debug('Session {f.id} in {f.room} room is inactive'.format(f=self.ws_session))
+
         log.debug('Session {f.id} was removed from room {f.room}'.format(f=self.ws_session))
+        await self.room.check_room()
         self.ws_session.close()
 
     async def find_room(self):

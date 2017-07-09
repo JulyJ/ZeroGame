@@ -1,5 +1,4 @@
 from asyncio import sleep
-from datetime import datetime
 from time import gmtime, strftime
 from random import randrange
 from uuid import uuid4
@@ -59,14 +58,18 @@ class Room:
         log.debug('Room {} created'.format(self.uuid))
 
     async def delete_room(self):
-        self.app['rooms'].delete(self)
+        self.app['rooms'].remove(self)
         log.debug('Room {} deleted'.format(self.uuid))
 
     async def check_room(self):
         if len(self.members) >= 4:
             self.available = False
+            log.debug('Room {} is full.'.format(self.uuid))
         elif len(self.members) == 0:
-            self.delete_room()
+            await self.delete_room()
+        else:
+            self.available = True
+            log.debug('Room {} is available.'.format(self.uuid))
 
 
 class Game:
@@ -76,14 +79,17 @@ class Game:
 
     async def run_game(self):
         while self.running:
-            for ws in self.app['websockets']:
-                try:
-                    ws.manager.broadcast(await self.get_event(ws))
-                except AttributeError as e:
-                    log.debug('AttributeError: %s' % e)
-                    self.app['websockets'].remove(ws)
-                    log.debug('Session removed: %s' % ws.id)
-                    continue
+            for room in self.app['rooms']:
+                for ws in room.members:
+                    event = await self.get_event(ws)
+                    try:
+                        for member in room.members:
+                            member.send(event)
+                    except AttributeError as e:
+                        log.debug('AttributeError: %s' % e)
+                        self.app['websockets'].remove(ws)
+                        log.debug('Session removed: %s' % ws.id)
+                        continue
             await sleep(1)
 
     async def get_event(self, ws):
