@@ -18,14 +18,14 @@ class WebSocket:
         elif msg.tp == MSG_MESSAGE:
             await self.route_message(msg)
         elif msg.tp == MSG_CLOSED:
-            for ws in self.room.members:
+            for ws in self.ws_session.room.members:
                 ws.send('{} ended journey.'.format(
-                self.ws_session.user.character_name))
+                    self.ws_session.user.character_name))
             self.ws_session.app['websockets'].remove(self.ws_session)
 
     async def start_journey(self, user_data):
         self.ws_session.app['websockets'].append(self.ws_session)
-        self.room = await self.find_room()
+        self.ws_session.room = await self.find_room()
         try:
             self.ws_session.user = User(self.ws_session.app.db, {'id': user_data.get('id')})
         except AttributeError as e:
@@ -33,21 +33,19 @@ class WebSocket:
             return
         await self.ws_session.user.get_user(id)
 
-        self.room.members.append(self.ws_session)
-        self.ws_session.room = self.room.uuid
-        log.debug('Session {f.id} was appended to room {f.room}'.format(f=self.ws_session))
-        for ws in self.room.members:
+        self.ws_session.room.members.append(self.ws_session)
+        log.debug('Session {f.id} was appended to room {f.room.uuid}'.format(f=self.ws_session))
+        for ws in self.ws_session.room.members:
             ws.send('{} started journey.'.format(
-            self.ws_session.user.character_name))
+        при        self.ws_session.user.character_name))
 
     async def stop_journey(self, user_data):
         try:
-            self.room.members.remove(self.ws_session)
+            self.ws_session.room.members.remove(self.ws_session)
         except ValueError:
-            log.debug('Session {f.id} in {f.room} room is inactive'.format(f=self.ws_session))
-
-        log.debug('Session {f.id} was removed from room {f.room}'.format(f=self.ws_session))
-        await self.room.check_room()
+            log.debug('Session {f.id} in {f.room.uuid} room is inactive'.format(f=self.ws_session))
+        log.debug('Session {f.id} was removed from room {f.room.uuid}'.format(f=self.ws_session))
+        await self.ws_session.room.check_room()
         self.ws_session.close()
 
     async def find_room(self):
