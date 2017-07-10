@@ -29,7 +29,11 @@ const gameReducer = (state = initialState, action) => {
                     action.message,
                     ...state.messages
                 ]
-            }
+            };
+        case gameActions.STOP_JOURNEY:
+            return {
+                ...initialState
+            };
         default:
             return state;
     }

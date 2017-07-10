@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { connectToGameServer, connectWebsocket, disconnectWebsocket } from '../services/game';
-import { userDataReceived, messageReceived } from '../actions/game';
+import { STOP_JOURNEY, userDataReceived, messageReceived } from '../actions/game';
 import GameMessages from '../components/game/game-messages';
 
 class StartPage extends React.Component {
@@ -19,10 +19,14 @@ class StartPage extends React.Component {
     }
 
     handleStopJourney () {
+        const { onJourneyStop } = this.props;
+
         this.setState({
             fireRedirect: true,
+        }, () => {
+            onJourneyStop();
         });
-        disconnectWebsocket()
+        disconnectWebsocket();
     }
 
     async componentDidMount () {
@@ -108,6 +112,11 @@ export default connect((state) => {
         },
         onMessageReceived: (message) => {
             dispatch(messageReceived(message));
+        },
+        onJourneyStop: () => {
+            dispatch({
+                type: STOP_JOURNEY
+            })
         }
     };
 })(StartPage);

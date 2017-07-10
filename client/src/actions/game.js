@@ -1,6 +1,7 @@
 export const START_GAME = 'START_GAME';
 export const USER_DATA_RECEIVED = 'USER_DATA_RECEIVED';
 export const MESSAGE_RECEIVED = 'MESSAGE_RECEIVED';
+export const STOP_JOURNEY = 'STOP_JOURNEY';
 
 export const startGame = (name, email, characterName) => {
     return {
