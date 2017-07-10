@@ -37,7 +37,7 @@ class WebSocket:
         log.debug('Session {f.id} was appended to room {f.room.uuid}'.format(f=self.ws_session))
         for ws in self.ws_session.room.members:
             ws.send('{} started journey.'.format(
-        при        self.ws_session.user.character_name))
+                self.ws_session.user.character_name))
 
     async def stop_journey(self, user_data):
         try:
