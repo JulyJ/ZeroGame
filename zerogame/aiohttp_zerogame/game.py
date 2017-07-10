@@ -80,17 +80,20 @@ class Game:
     async def run_game(self):
         while self.running:
             for room in self.app['rooms']:
-                for ws in room.members:
-                    event = await self.get_event(ws)
-                    try:
-                        for member in room.members:
-                            member.send(event)
-                    except AttributeError as e:
-                        log.debug('AttributeError: %s' % e)
-                        self.app['websockets'].remove(ws)
-                        log.debug('Session removed: %s' % ws.id)
-                        continue
+                await self.send_events(room)
             await sleep(1)
+
+    async def send_events(self, room):
+        for ws in room.members:
+            event = await self.get_event(ws)
+            try:
+                for member in room.members:
+                    member.send(event)
+            except AttributeError as e:
+                log.debug('AttributeError: %s' % e)
+                self.app['websockets'].remove(ws)
+                log.debug('Session removed: %s' % ws.id)
+                continue
 
     async def get_event(self, ws):
         story = Story(self.app.db, character=ws.user.character_name)
@@ -103,4 +106,4 @@ class Game:
         )
 
     def close(self):
-        pass
+        self.running = False
