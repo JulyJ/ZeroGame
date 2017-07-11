@@ -6,6 +6,40 @@ from uuid import uuid4
 from .config import log
 
 
+async def room_broadcast(room, event):
+    for member in room.members:
+        member.send(event)
+
+class Game:
+    def __init__(self, app, *args, **kwargs):
+        self.app = app
+        self.running = True
+
+    async def run_game(self):
+        while self.running:
+            for room in self.app['rooms']:
+                await self.send_events(room)
+            await sleep(1)
+
+    async def send_events(self, room):
+        for ws in room.members:
+            event = await self.get_event(ws)
+            await room_broadcast(room, event)
+
+    async def get_event(self, ws):
+        story = Story(self.app.db, character=ws.user.character_name)
+        event = await story.get_event()
+        await sleep(randrange(15))
+        return '[{time}] [{character}] {event}'.format(
+            character=ws.user.character_name,
+            event=event,
+            time=strftime("%H:%M:%S", gmtime())
+        )
+
+    def close(self):
+        self.running = False
+
+
 class Story:
     def __init__(self, db, character, **kwargs):
         self.collection = db.stories
@@ -52,10 +86,12 @@ class Room:
         self.available = True
         self.members = []
         self.app = app
+        self.quest = False
 
     async def append_room(self):
         self.app['rooms'].append(self)
         log.debug('Room {} created'.format(self.uuid))
+        await self.start_quest()
 
     async def delete_room(self):
         self.app['rooms'].remove(self)
@@ -71,39 +107,31 @@ class Room:
             self.available = True
             log.debug('Room {} is available.'.format(self.uuid))
 
+    async def start_quest(self):
+        if self.quest == False:
+            quest = Quest(self.app.db)
+            self.quest_name = await quest.get_quest()
+            log.debug('Quest "{}" started.'.format(self.quest_name))
+            self.quest = True
 
-class Game:
-    def __init__(self, app, *args, **kwargs):
-        self.app = app
-        self.running = True
 
-    async def run_game(self):
-        while self.running:
-            for room in self.app['rooms']:
-                await self.send_events(room)
-            await sleep(1)
+class Quest:
+    def __init__(self, db):
+        self.db = db
+        self.reward = randrange(1000, 10000, 100)
+        self.length = randrange(600, 3600, 100)
+        self.start_time = gmtime()
+        self.completed = False
 
-    async def send_events(self, room):
-        for ws in room.members:
-            event = await self.get_event(ws)
-            try:
-                for member in room.members:
-                    member.send(event)
-            except AttributeError as e:
-                log.debug('AttributeError: %s' % e)
-                self.app['websockets'].remove(ws)
-                log.debug('Session removed: %s' % ws.id)
-                continue
+    async def get_quest(self):
+        async for quest in self.db['quests'].aggregate([{'$sample': {'size': 1}}]):
+            return quest.get('item')
 
-    async def get_event(self, ws):
-        story = Story(self.app.db, character=ws.user.character_name)
-        event = await story.get_event()
-        await sleep(randrange(15))
-        return '[{time}] [{character}] {event}'.format(
-            character=ws.user.character_name,
-            event=event,
-            time=strftime("%H:%M:%S", gmtime())
-        )
+    async def check_quest_status(self):
+        if gmtime()+gmtime(self.length) >= self.start_time:
+            self.completed = True
 
-    def close(self):
-        self.running = False
+    async def run_quest(self):
+        while not self.completed:
+            self.check_quest_status()
+            # await sleep(100)
