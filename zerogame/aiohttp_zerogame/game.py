@@ -10,6 +10,7 @@ async def room_broadcast(room, event):
     for member in room.members:
         member.send(event)
 
+
 class Game:
     def __init__(self, app, *args, **kwargs):
         self.app = app
@@ -108,7 +109,7 @@ class Room:
             log.debug('Room {} is available.'.format(self.uuid))
 
     async def start_quest(self):
-        if self.quest == False:
+        if not self.quest:
             quest = Quest(self.app.db)
             self.quest_name = await quest.get_quest()
             log.debug('Quest "{}" started.'.format(self.quest_name))
