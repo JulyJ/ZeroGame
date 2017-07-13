@@ -18,16 +18,12 @@ class User:
     async def check_user(self, **kw):
         return await self.collection.find_one({'email': self.email})
 
-    async def get_character(self, **kw):
+    async def get_property(self, property, **kw):
         user = await self.collection.find_one({'email': self.email})
-        return user.get('character_name')
+        return user.get(property)
 
     async def auth(self):
-        user = await self.collection.find_one({'email': self.email})
-        if pbkdf2_sha256.verify(self.password, user.get('hash')):
-            return True
-        else:
-            return False
+        return pbkdf2_sha256.verify(self.password, await self.get_property('hash'))
 
     async def create_user(self, **kw):
         user = await self.check_user()
