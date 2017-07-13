@@ -5,6 +5,7 @@ const initialState = {
     name: '',
     characterName: '',
     email: '',
+    password: '',
     messages: []
 };
 
@@ -15,7 +16,8 @@ const gameReducer = (state = initialState, action) => {
                 ...state,
                 name: action.name,
                 characterName: action.characterName,
-                email: action.email
+                email: action.email,
+                password: action.password
             };
         case gameActions.USER_DATA_RECEIVED:
             return {

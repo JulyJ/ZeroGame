@@ -7,5 +7,6 @@ aiohttp_session
 aiofiles
 cryptography
 motor
+passlib
 sockjs
 uvloop

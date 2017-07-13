@@ -47,7 +47,7 @@ class PageViews:
 
 
 class StopJourney(View):
-    async def get(self, **kw):
+    async def get(self):
         session = await get_session(self.request)
         if session.get('user'):
             del session['user']
@@ -62,20 +62,29 @@ class ClientStart(View):
                                  'Access-Control-Allow-Origin': client_url,
                                  'Access-Control-Allow-Headers': 'Content-Type'})
 
-    async def post(self, **kw):
+    async def post(self):
         data = await self.request.json()
         user = User(self.request.db, data)
         result = await user.check_user()
         if not isinstance(result, dict):
             await user.create_user()
             result = await user.check_user()
+        else:
+            if not await user.auth():
+                return Response(
+                    text=dumps({'status': 'password mismatch'})
+                    )
+
         session = await get_session(self.request)
         set_session(session, str(result['_id']))
         return Response(
             text=dumps({
-                'id': str(result['_id']),
-                'name': str(result['name']),
-                'character_name': str(result['character_name']),
-                'email': str(result['email'])
+                'status': 'ok',
+                'userData': {
+                    'id': str(result['_id']),
+                    'name': str(result['name']),
+                    'character_name': str(result['character_name']),
+                    'email': str(result['email'])
+                }
             })
         )

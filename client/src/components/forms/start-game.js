@@ -7,6 +7,7 @@ class StartGameForm extends React.Component {
 
         this.state = {
             email: '',
+            password: '',
             name: '',
             characterName: ''
         };
@@ -35,7 +36,7 @@ class StartGameForm extends React.Component {
     }
 
     render () {
-        const { email, name, characterName } = this.state;
+        const { email, password, name, characterName } = this.state;
 
         return (
             <form onSubmit={this.handleSubmit}>
@@ -59,6 +60,17 @@ class StartGameForm extends React.Component {
                         value={email}
                         required
                         autoFocus
+                        onChange={this.handleFieldChange} />
+                </div>
+                <br />
+                Password:
+                <div>
+                    <input type="text"
+                        name="password"
+                        placeholder="Password"
+                        id="password"
+                        value={password}
+                        required
                         onChange={this.handleFieldChange} />
                 </div>
                 <br />

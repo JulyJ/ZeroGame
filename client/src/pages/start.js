@@ -12,20 +12,24 @@ class StartPage extends React.Component {
 
         this.state = {
             isLoading: true,
-            fireRedirect: false
+            fireRedirectToMainPage: false
         };
 
         this.handleStopJourney = this.handleStopJourney.bind(this);
     }
 
+    redirectToMainPage () {
+        this.setState({
+            fireRedirectToMainPage: true
+        });
+    }
+
     handleStopJourney () {
         const { onJourneyStop } = this.props;
 
-        this.setState({
-            fireRedirect: true,
-        }, () => {
-            onJourneyStop();
-        });
+        this.redirectToMainPage();
+        onJourneyStop();
+
         disconnectWebsocket();
     }
 
@@ -33,19 +37,24 @@ class StartPage extends React.Component {
         const {
             name,
             email,
+            password,
             characterName,
             onUserDataReceived,
             onMessageReceived
         } = this.props;
  
         try {
-            const userData = await connectToGameServer(name, email, characterName);
-            onUserDataReceived(userData);
-
-            connectWebsocket(userData, onMessageReceived);
+            const userDataResult = await connectToGameServer(name, email, password, characterName);
+            if (userDataResult.status === 'ok') {
+                onUserDataReceived(userDataResult.userData);
+                connectWebsocket(userDataResult.userData, onMessageReceived);
+            }
+            else {
+                this.redirectToMainPage();
+            }
         } catch (err) {
             console.error(err);
-
+            this.redirectToMainPage();
         }
         
         this.setState({
@@ -66,6 +75,7 @@ class StartPage extends React.Component {
             id,
             name,
             email,
+            password,
             characterName
         } = this.props;
 
@@ -75,7 +85,7 @@ class StartPage extends React.Component {
             return this.renderLoading();
         }
 
-        const { fireRedirect } = this.state;
+        const { fireRedirectToMainPage } = this.state;
 
         return (
             <div>
@@ -87,7 +97,7 @@ class StartPage extends React.Component {
                 </div>
                 <GameMessages />
                 <div>
-                {fireRedirect &&
+                {fireRedirectToMainPage &&
                     <Redirect push={true} to="/" />}
                 </div>
 
@@ -97,12 +107,13 @@ class StartPage extends React.Component {
 };
 
 export default connect((state) => {
-    const { id, name, email, characterName } = state.game;
+    const { id, name, email, password, characterName } = state.game;
 
     return {
         id,
         name,
         email,
+        password,
         characterName
     }
 }, (dispatch) => {

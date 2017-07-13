@@ -26,12 +26,13 @@ class WebSocket:
     async def start_journey(self, user_data):
         self.ws_session.app['websockets'].append(self.ws_session)
         self.ws_session.room = await self.find_room()
+        email = user_data.get('email')
         try:
-            self.ws_session.user = User(self.ws_session.app.db, {'id': user_data.get('id')})
+            self.ws_session.user = User(self.ws_session.app.db, {'email': email})
         except AttributeError as e:
             log.debug('AttributeError: %s' % e)
             return
-        await self.ws_session.user.get_user(id)
+        await self.ws_session.user.get_user()
 
         self.ws_session.room.members.append(self.ws_session)
         log.debug('Session {f.id} was appended to room {f.room.uuid}'.format(f=self.ws_session))

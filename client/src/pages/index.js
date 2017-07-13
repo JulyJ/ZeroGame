@@ -20,7 +20,7 @@ class IndexPage extends Component {
 
     handleSubmit(data) {
         const { handleStartGame } = this.props;
-        handleStartGame(data.name, data.email, data.characterName);
+        handleStartGame(data.name, data.email, data.password, data.characterName);
         disconnectWebsocket()
         this.setState({ fireRedirect: true });
     }
@@ -44,8 +44,8 @@ const mapStateToProps = () => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        handleStartGame: (name, email, characterName) => {
-            dispatch(startGame(name, email, characterName));
+        handleStartGame: (name, email, password, characterName) => {
+            dispatch(startGame(name, email, password, characterName));
         }
     };
 };
