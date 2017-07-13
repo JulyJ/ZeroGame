@@ -1,14 +1,10 @@
 from asyncio import sleep
-from time import gmtime, strftime
+from time import gmtime, strftime, mktime
 from random import randrange
 from uuid import uuid4
 
 from .config import log
-
-
-async def room_broadcast(room, event):
-    for member in room.members:
-        member.send(event)
+from .methods import room_broadcast
 
 
 class Game:
@@ -20,6 +16,7 @@ class Game:
         while self.running:
             for room in self.app['rooms']:
                 await self.send_events(room)
+                await self.check_quest(self.app, room)
             await sleep(1)
 
     async def send_events(self, room):
@@ -36,6 +33,10 @@ class Game:
             event=event,
             time=strftime("%H:%M:%S", gmtime())
         )
+
+    async def check_quest(self, app, room):  # TODO check if current quest is valid or start new
+        quest = Quest(app, room)
+        await quest.run_quest()
 
     def close(self):
         self.running = False
@@ -87,12 +88,10 @@ class Room:
         self.available = True
         self.members = []
         self.app = app
-        self.quest = False
 
     async def append_room(self):
         self.app['rooms'].append(self)
         log.debug('Room {} created'.format(self.uuid))
-        await self.start_quest()
 
     async def delete_room(self):
         self.app['rooms'].remove(self)
@@ -108,31 +107,37 @@ class Room:
             self.available = True
             log.debug('Room {} is available.'.format(self.uuid))
 
-    async def start_quest(self):
-        if not self.quest:
-            quest = Quest(self.app.db)
-            self.quest_name = await quest.get_quest()
-            log.debug('Quest "{}" started.'.format(self.quest_name))
-            self.quest = True
-
 
 class Quest:
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, app, room):
+        self.room = room
+        self.app = app
+        self.db = app.db
+        self.running = True
         self.reward = randrange(1000, 10000, 100)
-        self.length = randrange(600, 3600, 100)
+        self.length = randrange(6000, 36000, 1000)
         self.start_time = gmtime()
-        self.completed = False
+        self.name = None
 
-    async def get_quest(self):
+    async def get_quest_name(self):
         async for quest in self.db['quests'].aggregate([{'$sample': {'size': 1}}]):
-            return quest.get('item')
+            self.name = quest.get('item')
 
     async def check_quest_status(self):
-        if gmtime()+gmtime(self.length) >= self.start_time:
-            self.completed = True
+        if mktime(gmtime()) - self.length >= mktime(self.start_time):
+            await self.quest_completed()
+
+    async def quest_completed(self):
+        await room_broadcast(self.room, 'Quest {n} completed! Reward is {r} points.'.format(
+            n=self.name,
+            r=self.reward
+        ))
 
     async def run_quest(self):
-        while not self.completed:
-            self.check_quest_status()
-            # await sleep(100)
+        await self.get_quest_name()
+        while self.running:
+            await self.check_quest_status()
+            await sleep(100)
+
+    def close(self):
+        self.running = False
