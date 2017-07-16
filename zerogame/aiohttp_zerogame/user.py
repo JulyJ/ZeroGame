@@ -32,7 +32,9 @@ class User:
                 'email': self.email,
                 'hash': pbkdf2_sha256.hash(self.password),
                 'name': self.name,
-                'character_name': self.character_name
+                'character_name': self.character_name,
+                'points': 0,
+                'experience': 0
             })
             log.debug('Creating user: {}'.format(self.email))
         else:
@@ -51,3 +53,19 @@ class User:
         self.character_name = user.get('character_name')
         self.hash = user.get('hash')
         self.id = user.get('_id')
+        self.points = user.get('points')
+        self.experience = user.get('experience')
+
+    async def write_user_data(self):
+        await self.collection.update(
+            {'email': self.email},
+            {
+                '$inc':
+                    {
+                        'points': self.points,
+                        'experience': self.experience
+                    }
+            },
+            upsert=True
+        )
+        log.debug('Updating user: {}'.format(self.email))
