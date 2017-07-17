@@ -54,7 +54,7 @@ class Quest:
         for member in self.room.members:
             member.user.experience += self.experience//members
             member.user.points += self.points//members
-            log.debug("{u.name} now have {u.experience} exp and {u.points} points".format(
+            log.debug("{u.name} now has {u.experience} exp and {u.points} points".format(
                 u=member.user
             ))
 
