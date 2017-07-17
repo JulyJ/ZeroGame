@@ -12,8 +12,8 @@ class Quest:
         self.app = app
         self.db = app.db
         self.running = True
-        self.reward = randrange(100, 1000, 100)
-        self.length = randrange(600, 3600, 100)
+        self.points = randrange(100, 1000, 100)
+        self.length = randrange(60, 360, 10)
         self.experience = randrange(100, 3000, 100)
         self.start_time = gmtime()
         self.name = None
@@ -38,7 +38,7 @@ class Quest:
             self.room,
             'Quest {n} completed! Reward is {r} points and {e} experience.'.format(
                 n=self.room.quest,
-                r=self.reward,
+                r=self.points,
                 e=self.experience
                 )
             )
@@ -46,13 +46,23 @@ class Quest:
         log.debug("Quest {r.quest} completed in room {r.uuid}".format(
             r=self.room
         ))
+
         members = len(self.room.members)
         for member in self.room.members:
-            member.user.experience = self.experience//members
-            member.user.points = self.reward//members
-            log.debug("{u.name} gets {u.experience} exp and {u.points} points".format(
+            member.user.experience += self.experience//members
+            member.user.points += self.points//members
+            log.debug("{u.name} now have {u.experience} exp and {u.points} points".format(
                 u=member.user
             ))
+            level = int(await member.user.check_level())
+            if level > member.user.level:
+                await room_broadcast(
+                    self.room,
+                    "User {u} is now level {l}".format(
+                        u=member.user.character_name,
+                        l=level)
+                )
+                member.user.level = level
             await member.user.write_user_data()
             self.room.quest = None
 

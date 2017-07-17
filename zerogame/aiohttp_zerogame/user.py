@@ -1,4 +1,5 @@
 from asyncio import CancelledError
+from math import sqrt
 from passlib.hash import pbkdf2_sha256
 
 from .config import log
@@ -14,6 +15,7 @@ class User:
         self.name = data.get('name')
         self.password = data.get('password')
         self.character_name = data.get('character_name')
+        self.level = 0
 
     async def check_user(self, **kw):
         return await self.collection.find_one({'email': self.email})
@@ -55,12 +57,13 @@ class User:
         self.id = user.get('_id')
         self.points = user.get('points')
         self.experience = user.get('experience')
+        self.level = await self.check_level()
 
     async def write_user_data(self):
         await self.collection.update(
             {'email': self.email},
             {
-                '$inc':
+                '$set':
                     {
                         'points': self.points,
                         'experience': self.experience
@@ -69,3 +72,6 @@ class User:
             upsert=True
         )
         log.debug('Updating user: {}'.format(self.email))
+
+    async def check_level(self):
+        return 0.1 * sqrt(self.experience)
