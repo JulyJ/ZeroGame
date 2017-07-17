@@ -3,7 +3,7 @@ from random import randrange
 from time import gmtime, mktime
 
 from config import log
-from .methods import room_broadcast
+from .methods import room_broadcast, ws_message
 
 
 class Quest:
@@ -13,7 +13,8 @@ class Quest:
         self.db = app.db
         self.running = True
         self.points = randrange(100, 1000, 100)
-        self.length = randrange(60, 360, 10)
+        # self.length = randrange(60, 360, 10)
+        self.length = randrange(6, 36, 10)
         self.experience = randrange(100, 3000, 100)
         self.start_time = gmtime()
         self.name = None
@@ -54,6 +55,7 @@ class Quest:
             log.debug("{u.name} now have {u.experience} exp and {u.points} points".format(
                 u=member.user
             ))
+
             level = int(await member.user.check_level())
             if level > member.user.level:
                 await room_broadcast(
@@ -63,6 +65,8 @@ class Quest:
                         l=level)
                 )
                 member.user.level = level
+                member.send(await ws_message(level, 'level'))
+
             await member.user.write_user_data()
             self.room.quest = None
 
