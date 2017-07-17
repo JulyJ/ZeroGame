@@ -15,11 +15,15 @@ const GameMessages = (props) => {
 
     return (
         <GameMessagesContainer>
-            {messages.map((message, i) => (
-                <div key={i}>
-                    {message}
-                </div>
-            ))}
+            {messages.map((message, i) => {
+                if (message.type === 'chat') {
+                    return (
+                        <div key={i}>
+                            {message.message}
+                        </div>
+                    );
+                }
+            })}
         </GameMessagesContainer>
     );
 };

@@ -32,7 +32,7 @@ export const connectWebsocket = (userData, onMessageReceived) => {
     };
 
     sock.onmessage = function(e) {
-        const data = e.data;
+        const data = JSON.parse(e.data);
         
         onMessageReceived(data);
     };

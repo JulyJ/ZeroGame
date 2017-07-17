@@ -1,12 +1,14 @@
 import * as gameActions from '../actions/game';
 
 const initialState = {
+    messages: [],
+
     id: null,
     name: '',
     characterName: '',
     email: '',
     password: '',
-    messages: []
+    playerLevel: '...'
 };
 
 const gameReducer = (state = initialState, action) => {
@@ -36,6 +38,13 @@ const gameReducer = (state = initialState, action) => {
             return {
                 ...initialState
             };
+
+        case gameActions.PLAYER_LEVEL_UP:
+            return {
+                ...state,
+                playerLevel: action.message
+            };
+
         default:
             return state;
     }

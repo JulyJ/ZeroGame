@@ -2,7 +2,7 @@ from asyncio import sleep
 from random import randrange
 from time import gmtime, mktime
 
-from config import log
+from config import log, DEBUG_MODE
 from .methods import room_broadcast, ws_message
 
 
@@ -13,11 +13,13 @@ class Quest:
         self.db = app.db
         self.running = True
         self.points = randrange(100, 1000, 100)
-        # self.length = randrange(60, 360, 10)
-        self.length = randrange(6, 36, 10)
-        self.experience = randrange(100, 3000, 100)
+        self.length = randrange(60, 360, 10)
+        self.experience = randrange(1000, 3000, 1000)
         self.start_time = gmtime()
         self.name = None
+
+        if DEBUG_MODE:
+            self.length = randrange(6, 36, 1)
 
     async def get_quest_name(self):
         async for quest in self.db['quests'].aggregate([{'$sample': {'size': 1}}]):

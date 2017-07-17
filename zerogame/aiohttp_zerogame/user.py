@@ -16,6 +16,7 @@ class User:
         self.password = data.get('password')
         self.character_name = data.get('character_name')
         self.level = 0
+        self.experience = 0
 
     async def check_user(self, **kw):
         return await self.collection.find_one({'email': self.email})
@@ -36,7 +37,8 @@ class User:
                 'name': self.name,
                 'character_name': self.character_name,
                 'points': 0,
-                'experience': 0
+                'experience': 0,
+                'level': 0
             })
             log.debug('Creating user: {}'.format(self.email))
         else:
@@ -74,4 +76,4 @@ class User:
         log.debug('Updating user: {}'.format(self.email))
 
     async def check_level(self):
-        return 0.1 * sqrt(self.experience)
+        return int(0.1 * sqrt(self.experience))

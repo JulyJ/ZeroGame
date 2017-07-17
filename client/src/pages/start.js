@@ -2,8 +2,17 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { connectToGameServer, connectWebsocket, disconnectWebsocket } from '../services/game';
-import { STOP_JOURNEY, userDataReceived, messageReceived } from '../actions/game';
+import {
+    connectToGameServer,
+    connectWebsocket,
+    disconnectWebsocket
+} from '../services/game';
+import {
+    STOP_JOURNEY,
+    userDataReceived,
+    messageReceived,
+    parseMessage
+} from '../actions/game';
 import GameMessages from '../components/game/game-messages';
 
 class StartPage extends React.Component {
@@ -76,7 +85,8 @@ class StartPage extends React.Component {
             name,
             email,
             password,
-            characterName
+            characterName,
+            playerLevel
         } = this.props;
 
         const { isLoading } = this.state;
@@ -91,10 +101,15 @@ class StartPage extends React.Component {
             <div>
                 Let the journey begin, {name}!
                 <div>
+                    HERO LEVEL {playerLevel}
+                </div>
+                
+                <div>
                     <button onClick={this.handleStopJourney}>
                         Stop Journey
                     </button>
                 </div>
+
                 <GameMessages />
                 <div>
                 {fireRedirectToMainPage &&
@@ -107,14 +122,15 @@ class StartPage extends React.Component {
 };
 
 export default connect((state) => {
-    const { id, name, email, password, characterName } = state.game;
+    const { id, name, email, password, characterName, playerLevel } = state.game;
 
     return {
         id,
         name,
         email,
         password,
-        characterName
+        characterName,
+        playerLevel
     }
 }, (dispatch) => {
     return {
@@ -122,7 +138,8 @@ export default connect((state) => {
             dispatch(userDataReceived(userData));
         },
         onMessageReceived: (message) => {
-            dispatch(messageReceived(message));
+
+            dispatch(parseMessage(message));
         },
         onJourneyStop: () => {
             dispatch({

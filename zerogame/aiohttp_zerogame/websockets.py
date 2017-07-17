@@ -40,6 +40,7 @@ class WebSocket:
         for ws in self.ws_session.room.members:
             ws.send(await ws_message('{} started journey.'.format(
                 self.ws_session.user.character_name)))
+            ws.send(await ws_message(self.ws_session.user.level, 'level'))
 
     async def stop_journey(self, user_data):
         try:
