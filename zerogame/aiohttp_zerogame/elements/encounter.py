@@ -1,0 +1,45 @@
+from random import randrange
+from time import gmtime
+
+from ..config import DEBUG_MODE
+from ..game import Room
+from .methods import add_user, kick_user
+
+
+class Encounter:
+    def __init__(self, app, room):
+        self.app = app
+        self.db = app.db
+        self.cost = randrange(100, 1000, 100)
+        self.experience = randrange(10000, 30000, 1000)
+        self.start_time = gmtime()
+        self.length = randrange(60, 360, 10)
+        self.name = None
+
+        if DEBUG_MODE:
+            self.length = randrange(6, 36, 1)
+
+    async def start_encounter(self, session):
+        room = Room(self.app)
+        kick_user(self.app, session.room)
+        add_user(room, session)
+
+
+class Dungeon(Encounter):
+    pass
+
+
+class Battle(Encounter):
+    pass
+
+
+class Fishing(Encounter):
+    pass
+
+
+class Archeology(Encounter):
+    pass
+
+
+class Mining(Encounter):
+    pass

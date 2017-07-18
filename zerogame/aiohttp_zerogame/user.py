@@ -16,7 +16,10 @@ class User:
         self.password = data.get('password')
         self.character_name = data.get('character_name')
         self.level = 0
+        self.skills = []
+        self.encounter = None
         self.experience = 0
+        self.points = 0
 
     async def check_user(self, **kw):
         return await self.collection.find_one({'email': self.email})
@@ -36,9 +39,11 @@ class User:
                 'hash': pbkdf2_sha256.hash(self.password),
                 'name': self.name,
                 'character_name': self.character_name,
-                'points': 0,
-                'experience': 0,
-                'level': 0
+                'points': self.points,
+                'experience': self.experience,
+                'skills': self.skills,
+                'encounter': self.encounter,
+                'level': self.level
             })
             log.debug('Creating user: {}'.format(self.email))
         else:
@@ -58,8 +63,10 @@ class User:
         self.hash = user.get('hash')
         self.id = user.get('_id')
         self.points = user.get('points')
+        self.skills = user.get('skills')
         self.experience = user.get('experience')
         self.level = await self.check_level()
+        self.encounter = user.get('encounter')
 
     async def write_user_data(self):
         await self.collection.update(

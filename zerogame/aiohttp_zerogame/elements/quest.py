@@ -2,7 +2,7 @@ from asyncio import sleep
 from random import randrange
 from time import gmtime, mktime
 
-from config import log, DEBUG_MODE
+from ..config import log, DEBUG_MODE
 from .methods import room_broadcast, ws_message
 
 
