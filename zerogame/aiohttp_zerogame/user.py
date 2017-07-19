@@ -7,7 +7,7 @@ from .config import log
 
 class User:
 
-    def __init__(self, db, data, **kw):
+    def __init__(self, db, data):
         self.db = db
         self.collection = self.db.users
         self.id = data.get('id')
@@ -20,18 +20,19 @@ class User:
         self.encounter = None
         self.experience = 0
         self.points = 0
+        self.hash = None
 
-    async def check_user(self, **kw):
+    async def check_user(self):
         return await self.collection.find_one({'email': self.email})
 
-    async def get_property(self, property, **kw):
+    async def get_property(self, prop):
         user = await self.collection.find_one({'email': self.email})
-        return user.get(property)
+        return user.get(prop)
 
     async def auth(self):
         return pbkdf2_sha256.verify(self.password, await self.get_property('hash'))
 
-    async def create_user(self, **kw):
+    async def create_user(self):
         user = await self.check_user()
         if not user:
             result = await self.collection.insert({

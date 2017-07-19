@@ -7,7 +7,7 @@ from .methods import add_user, kick_user
 
 
 class Encounter:
-    def __init__(self, app, room):
+    def __init__(self, app):
         self.app = app
         self.db = app.db
         self.cost = randrange(100, 1000, 100)
@@ -21,8 +21,9 @@ class Encounter:
 
     async def start_encounter(self, session):
         room = Room(self.app)
-        kick_user(self.app, session.room)
-        add_user(room, session)
+        await kick_user(session)
+        await add_user(room, session)
+        await room.check_room()
 
 
 class Dungeon(Encounter):

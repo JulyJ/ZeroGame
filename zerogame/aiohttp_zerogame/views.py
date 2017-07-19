@@ -57,7 +57,8 @@ class StopJourney(View):
 
 
 class ClientStart(View):
-    async def options(self):   # https://github.com/aio-libs/aiohttp-cors/issues/41
+    @staticmethod
+    async def options():   # https://github.com/aio-libs/aiohttp-cors/issues/41
         return Response(headers={'Allow': 'OPTIONS, POST',
                                  'Access-Control-Allow-Origin': client_url,
                                  'Access-Control-Allow-Headers': 'Content-Type'})

@@ -2,12 +2,12 @@ from time import gmtime, strftime
 
 
 class Story:
-    def __init__(self, db, character, **kwargs):
+    def __init__(self, db, character):
         self.collection = db.stories
         self.db = db
         self.character = character
 
-    async def save(self, character, story, **kw):
+    async def save(self, character, story):
         result = await self.collection.insert(
             {
                 'character': character,

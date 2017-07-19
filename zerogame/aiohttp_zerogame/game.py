@@ -10,9 +10,10 @@ from .elements.quest import Quest
 
 
 class Game:
-    def __init__(self, app, *args, **kwargs):
+    def __init__(self, app):
         self.app = app
         self.running = True
+        self.quest = None
 
     async def run_game(self):
         while self.running:

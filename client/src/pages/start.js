@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import {
     connectToGameServer,
     connectWebsocket,
-    disconnectWebsocket
+    disconnectWebsocket,
+    sendStartEncounterCommand
 } from '../services/game';
 import {
     STOP_JOURNEY,
@@ -40,6 +41,11 @@ class StartPage extends React.Component {
         onJourneyStop();
 
         disconnectWebsocket();
+    }
+
+    handleStartEncounter () {
+
+        sendStartEncounterCommand();
     }
 
     async componentDidMount () {
@@ -107,6 +113,11 @@ class StartPage extends React.Component {
                 <div>
                     <button onClick={this.handleStopJourney}>
                         Stop Journey
+                    </button>
+                </div>
+                <div>
+                    <button onClick={this.handleStartEncounter}>
+                        Start Encounter
                     </button>
                 </div>
 

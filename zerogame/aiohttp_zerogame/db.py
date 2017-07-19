@@ -10,6 +10,7 @@ class MongoClient:
     def __init__(self):
         self.client = AsyncIOMotorClient('mongodb://localhost:27017')
         self.db = self.client.zerogame
+        self.filepath = None
 
     async def update_names(self):
         self.filepath = join(dirname(dirname(abspath(__file__))), 'items')

@@ -6,11 +6,15 @@ from aiohttp_session import get_session
 from .config import log
 from .user import User
 from .game import Room
+from .elements.encounter import Encounter
 from .elements.methods import ws_message
 
 
 class WebSocket:
-    async def msg_handler(self, msg, ws_session, *args, **kwargs):
+    def __init__(self):
+        self.ws_session = None
+
+    async def msg_handler(self, msg, ws_session):
         self.ws_session = ws_session
         self.ws_session.aio_session = await get_session(request=self.ws_session.request)
 
@@ -60,14 +64,23 @@ class WebSocket:
         await room.append_room()
         return room
 
+    async def start_encounter(self, user_data):
+        encounter = Encounter(self.ws_session.app)
+        await encounter.start_encounter(self.ws_session)
+        log.debug('user {u} started encounter {e}'.format(
+            u=self.ws_session,
+            e=encounter.name
+        ))
+
     @staticmethod
-    async def unknown_command():
+    async def unknown_command(user_data):
         log.debug('Unknown ws command received from server')
 
     async def route_message(self, msg):
         commands = {
             'start_journey': self.start_journey,
-            'stop_journey': self.stop_journey
+            'stop_journey': self.stop_journey,
+            'start_encounter': self.start_encounter
         }
         json_data = loads(msg.data)
         if 'command' in json_data:
@@ -76,7 +89,7 @@ class WebSocket:
                 self.unknown_command
             )(json_data.get('command_data', None))
         else:
-            self.unknown_command()
+            self.unknown_command((json_data.get('command_data', None)))
 
 
 class RequestSessionManager(SessionManager):

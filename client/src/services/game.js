@@ -50,3 +50,11 @@ export const disconnectWebsocket = (e) => {
         sock.close()
     }
 };
+
+export const sendStartEncounterCommand = (e) => {
+    if (sock != null) {
+        sock.send(JSON.stringify({
+            command: 'start_encounter'
+        }));
+    }
+};
