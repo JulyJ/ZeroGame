@@ -20,10 +20,11 @@ class Encounter:
             self.length = randrange(6, 36, 1)
 
     async def start_encounter(self, session):
-        room = Room(self.app)
+        enc_room = Room(self.app)
         await kick_user(session)
-        await add_user(room, session)
-        await room.check_room()
+        await add_user(enc_room, session)
+        for room in self.app['rooms']:
+            await room.check_room()
 
 
 class Dungeon(Encounter):
