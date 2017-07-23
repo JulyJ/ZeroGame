@@ -26,6 +26,9 @@ class Encounter:
         for room in self.app['rooms']:
             await room.check_room()
 
+    async def stop_encounter(self, session):
+        await kick_user(session)
+
 
 class Dungeon(Encounter):
     pass

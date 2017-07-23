@@ -58,3 +58,12 @@ export const sendStartEncounterCommand = (e) => {
         }));
     }
 };
+
+export const sendStopEncounterCommand = (state) => {
+    if (sock != null) {
+        sock.send(JSON.stringify({
+            command: 'stop_encounter'
+        }
+        ));
+    }
+};

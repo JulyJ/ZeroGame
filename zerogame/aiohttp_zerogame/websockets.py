@@ -7,7 +7,7 @@ from .config import log
 from .user import User
 from .game import Room
 from .elements.encounter import Encounter
-from .elements.methods import ws_message
+from .elements.methods import ws_message, room_broadcast
 
 
 class WebSocket:
@@ -41,10 +41,11 @@ class WebSocket:
 
         self.ws_session.room.members.append(self.ws_session)
         log.debug('Session {f.id} was appended to room {f.room.uuid}'.format(f=self.ws_session))
-        for ws in self.ws_session.room.members:
-            ws.send(await ws_message('{} started journey.'.format(
-                self.ws_session.user.character_name)))
-            ws.send(await ws_message(self.ws_session.user.level, 'level'))
+        await room_broadcast(
+            self.ws_session.room,
+            '{} started journey.'.format(
+                self.ws_session.user.character_name))
+        self.ws_session.send(await ws_message(self.ws_session.user.level, 'level'))
 
     async def stop_journey(self, user_data):
         try:
@@ -65,12 +66,40 @@ class WebSocket:
         return room
 
     async def start_encounter(self, user_data):
-        encounter = Encounter(self.ws_session.app)
-        await encounter.start_encounter(self.ws_session)
-        log.debug('user {u} started encounter {e}'.format(
-            u=self.ws_session,
-            e=encounter.name
-        ))
+        if not self.ws_session.encounter:
+            encounter = Encounter(self.ws_session.app)
+            self.ws_session.encounter = encounter
+            await encounter.start_encounter(self.ws_session)
+            await room_broadcast(
+                self.ws_session.room,
+                '{} paused journey.'.format(
+                    self.ws_session.user.character_name)
+            )
+            log.debug('user {u} started encounter {e}'.format(
+                u=self.ws_session,
+                e=encounter.name
+            ))
+
+    async def resume_journey(self):
+        self.ws_session.room = await self.find_room()
+        self.ws_session.room.members.append(self.ws_session)
+        log.debug('Session {f.id} was appended to room {f.room.uuid}'.format(f=self.ws_session))
+        await room_broadcast(
+            self.ws_session.room,
+            '{} resumed journey.'.format(
+                self.ws_session.user.character_name)
+        )
+        self.ws_session.send(await ws_message(self.ws_session.user.level, 'level'))
+
+    async def stop_encounter(self, user_data):
+        if self.ws_session.encounter:
+            log.debug('user {u} stopped encounter {e}'.format(
+                u=self.ws_session,
+                e=self.ws_session.encounter.name
+            ))
+            await self.ws_session.encounter.stop_encounter(self.ws_session)
+            await self.resume_journey()
+            self.ws_session.encounter = None
 
     @staticmethod
     async def unknown_command(user_data):
@@ -80,7 +109,8 @@ class WebSocket:
         commands = {
             'start_journey': self.start_journey,
             'stop_journey': self.stop_journey,
-            'start_encounter': self.start_encounter
+            'start_encounter': self.start_encounter,
+            'stop_encounter': self.stop_encounter
         }
         json_data = loads(msg.data)
         if 'command' in json_data:
@@ -101,4 +131,5 @@ class RequestSessionManager(SessionManager):
         ws_session.request = kwargs.get('request', None)
         ws_session.app = self.app
         ws_session.room = None
+        ws_session.encounter = None
         return ws_session

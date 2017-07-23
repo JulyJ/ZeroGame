@@ -6,7 +6,8 @@ import {
     connectToGameServer,
     connectWebsocket,
     disconnectWebsocket,
-    sendStartEncounterCommand
+    sendStartEncounterCommand,
+    sendStopEncounterCommand
 } from '../services/game';
 import {
     STOP_JOURNEY,
@@ -22,10 +23,13 @@ class StartPage extends React.Component {
 
         this.state = {
             isLoading: true,
+            encounterStarted: false,
             fireRedirectToMainPage: false
         };
 
         this.handleStopJourney = this.handleStopJourney.bind(this);
+        this.handleStartEncounter = this.handleStartEncounter.bind(this);
+        this.handleStopEncounter = this.handleStopEncounter.bind(this);
     }
 
     redirectToMainPage () {
@@ -44,8 +48,15 @@ class StartPage extends React.Component {
     }
 
     handleStartEncounter () {
+        this.setState({encounterStarted: true});
 
         sendStartEncounterCommand();
+    }
+
+    handleStopEncounter () {
+        this.setState({encounterStarted: false});
+
+        sendStopEncounterCommand();
     }
 
     async componentDidMount () {
@@ -95,7 +106,7 @@ class StartPage extends React.Component {
             playerLevel
         } = this.props;
 
-        const { isLoading } = this.state;
+        const { isLoading, encounterStarted } = this.state;
         
         if (isLoading) {
             return this.renderLoading();
@@ -116,9 +127,15 @@ class StartPage extends React.Component {
                     </button>
                 </div>
                 <div>
-                    <button onClick={this.handleStartEncounter}>
-                        Start Encounter
-                    </button>
+                    {encounterStarted &&
+                        <button onClick={this.handleStopEncounter}>
+                            Stop Encounter
+                        </button>}
+                    
+                    {!encounterStarted &&
+                        <button onClick={this.handleStartEncounter}>
+                            Start Encounter
+                        </button>}
                 </div>
 
                 <GameMessages />
