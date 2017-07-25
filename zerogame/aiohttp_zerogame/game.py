@@ -17,7 +17,7 @@ class Game:
 
     async def run_game(self):
         while self.running:
-            for room in self.app['rooms']:
+            for room in self.app.rooms:
                 await self.send_events(room)
                 await self.check_quest(self.app, room)
             await sleep(1)
@@ -61,11 +61,11 @@ class Room:
         self.quest = None
 
     async def append_room(self):
-        self.app['rooms'].append(self)
+        self.app.rooms.append(self)
         log.debug('Room {} created'.format(self.uuid))
 
     async def delete_room(self):
-        self.app['rooms'].remove(self)
+        self.app.rooms.remove(self)
         log.debug('Room {} deleted'.format(self.uuid))
 
     async def check_room(self):

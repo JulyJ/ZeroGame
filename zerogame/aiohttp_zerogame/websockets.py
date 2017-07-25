@@ -26,10 +26,10 @@ class WebSocket:
             for ws in self.ws_session.room.members:
                 ws.send(await ws_message('{} ended journey.'.format(
                     self.ws_session.user.character_name)))
-            self.ws_session.app['websockets'].remove(self.ws_session)
+            self.ws_session.app.websockets.remove(self.ws_session)
 
     async def start_journey(self, user_data):
-        self.ws_session.app['websockets'].append(self.ws_session)
+        self.ws_session.app.websockets.append(self.ws_session)
         self.ws_session.room = await self.find_room()
         email = user_data.get('email')
         try:
@@ -57,7 +57,7 @@ class WebSocket:
         self.ws_session.close()
 
     async def find_room(self):
-        for room in self.ws_session.app['rooms']:
+        for room in self.ws_session.app.rooms:
             await room.check_room()
             if room.available:
                 return room

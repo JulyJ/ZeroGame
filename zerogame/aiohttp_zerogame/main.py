@@ -61,8 +61,8 @@ class Server:
         app.db = app.mongo.db
 
         app.ws = WebSocket()
-        app['websockets'] = []
-        app['rooms'] = []
+        app.websockets = []
+        app.rooms = []
         request_session_manager = RequestSessionManager(
             name='ws',
             app=app,
@@ -111,7 +111,7 @@ class Server:
         await server.wait_closed()
         await app.shutdown()
         await handler.shutdown(1)
-        for ws in app['websockets']:
+        for ws in app.websockets:
             ws.close(WSCloseCode.GOING_AWAY)
             log.debug('Session {} closed.'.format(ws.id))
         await app.cleanup()

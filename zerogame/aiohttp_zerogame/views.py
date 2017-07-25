@@ -10,8 +10,8 @@ from .user import User
 
 
 def set_session(session, user_id):
-    session['user'] = str(user_id)
-    session['last_visit'] = time()
+    session.user = str(user_id)
+    session.last_visit = time()
 
 
 def redirect(request, router):
@@ -26,7 +26,7 @@ class PageViews:
     @staticmethod
     async def index(request):
         session = await get_session(request)
-        session['last_visit'] = time()
+        session.last_visit = time()
         return aiohttp_jinja2.render_template('index.html',
                                               request,
                                               {'text': 'Zero Game'}
