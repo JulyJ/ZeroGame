@@ -26,7 +26,7 @@ class StartGameForm extends React.Component {
     }
 
     handleSubmit (e) {
-        const { handleStartGame } = this.props;
+        // const { handleStartGame } = this.props;
         
         e.preventDefault();
 

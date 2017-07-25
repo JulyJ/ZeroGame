@@ -12,7 +12,6 @@ import {
 import {
     STOP_JOURNEY,
     userDataReceived,
-    messageReceived,
     parseMessage
 } from '../actions/game';
 import GameMessages from '../components/game/game-messages';
@@ -98,11 +97,7 @@ class StartPage extends React.Component {
 
     render () {
         const {
-            id,
             name,
-            email,
-            password,
-            characterName,
             playerLevel
         } = this.props;
 
