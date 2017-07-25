@@ -3,7 +3,7 @@ from random import randrange
 from time import gmtime, mktime
 
 from ..config import log, DEBUG_MODE
-from .methods import room_broadcast, ws_message
+from .methods import room_broadcast, ws_message, get_random_item
 
 
 class Quest:
@@ -22,8 +22,7 @@ class Quest:
             self.length = randrange(6, 36, 1)
 
     async def get_quest_name(self):
-        async for quest in self.db['quests'].aggregate([{'$sample': {'size': 1}}]):
-            self.name = quest.get('item')
+        self.name = (await get_random_item(self.db, 'quests')).get('item')
         await room_broadcast(self.room, "Quest {} started".format(self.name))
         self.room.quest = self.name
         log.debug("Quest {r.quest} started in room {r.uuid}".format(

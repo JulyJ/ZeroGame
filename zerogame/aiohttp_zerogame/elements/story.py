@@ -1,6 +1,8 @@
 from time import gmtime, strftime
 
 
+from .methods import get_random_item
+
 class Story:
     def __init__(self, db, character):
         self.collection = db.stories
@@ -17,17 +19,12 @@ class Story:
         )
         return result
 
-    async def get_random_item(self, name):
-        pipeline = [{'$sample': {'size': 1}}]
-        async for doc in self.db[name].aggregate(pipeline):
-            return doc
-
     async def get_event(self):
         items = {}
         names = await self.get_names()
 
         for name in names:
-            item = await self.get_random_item(name)
+            item = await get_random_item(self.db, name)
             items[name] = item.get('item')
         items['character'] = self.character
 

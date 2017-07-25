@@ -7,7 +7,7 @@ from .config import log
 from .user import User
 from .game import Room
 from .elements.encounter import Encounter
-from .elements.methods import ws_message, room_broadcast
+from .elements.methods import ws_message, room_broadcast, kick_user
 
 
 class WebSocket:
@@ -26,6 +26,7 @@ class WebSocket:
             for ws in self.ws_session.room.members:
                 ws.send(await ws_message('{} ended journey.'.format(
                     self.ws_session.user.character_name)))
+                await kick_user(self.ws_session)
             self.ws_session.app.websockets.remove(self.ws_session)
 
     async def start_journey(self, user_data):
@@ -75,7 +76,7 @@ class WebSocket:
                 '{} paused journey.'.format(
                     self.ws_session.user.character_name)
             )
-            log.debug('user {u} started encounter {e}'.format(
+            log.debug('user {u.id} started encounter {e}'.format(
                 u=self.ws_session,
                 e=encounter.name
             ))
@@ -93,7 +94,7 @@ class WebSocket:
 
     async def stop_encounter(self, user_data):
         if self.ws_session.encounter:
-            log.debug('user {u} stopped encounter {e}'.format(
+            log.debug('user {u.id} stopped encounter {e}'.format(
                 u=self.ws_session,
                 e=self.ws_session.encounter.name
             ))

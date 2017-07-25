@@ -3,7 +3,7 @@ from time import gmtime
 
 from ..config import DEBUG_MODE
 from ..game import Room
-from .methods import add_user, kick_user
+from .methods import add_user, kick_user, get_random_item
 
 
 class Encounter:
@@ -20,10 +20,11 @@ class Encounter:
             self.length = randrange(6, 36, 1)
 
     async def start_encounter(self, session):
+        self.name = (await get_random_item(self.db, 'encounters')).get('item')
         enc_room = Room(self.app)
         await kick_user(session)
         await add_user(enc_room, session)
-        for room in self.app['rooms']:
+        for room in self.app.rooms:
             await room.check_room()
 
     async def stop_encounter(self, session):

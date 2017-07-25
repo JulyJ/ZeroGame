@@ -32,3 +32,9 @@ async def add_user(room, session):
         u=session.id,
         r=room.uuid
     ))
+
+
+async def get_random_item(db, name):
+    pipeline = [{'$sample': {'size': 1}}]
+    async for doc in db[name].aggregate(pipeline):
+        return doc
