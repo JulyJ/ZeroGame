@@ -1,7 +1,7 @@
 from time import gmtime, strftime
 
-
 from .methods import get_random_item
+
 
 class Story:
     def __init__(self, db, character):

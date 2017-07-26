@@ -3,6 +3,7 @@ from math import sqrt
 from passlib.hash import pbkdf2_sha256
 
 from .config import log
+from .elements.methods import room_broadcast, ws_message
 
 
 class User:
@@ -85,3 +86,15 @@ class User:
 
     async def check_level(self):
         return int(0.1 * sqrt(self.experience))
+
+    async def level_up_broadcast(self, room, session):
+        level = int(await self.check_level())
+        if level > self.level:
+            await room_broadcast(
+                room,
+                "User {u} is now level {l}".format(
+                    u=self.character_name,
+                    l=level)
+            )
+            self.level = level
+            session.send(await ws_message(level, 'level'))

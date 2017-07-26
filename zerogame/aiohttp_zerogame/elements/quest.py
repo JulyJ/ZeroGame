@@ -3,7 +3,7 @@ from random import randrange
 from time import gmtime, mktime
 
 from ..config import log, DEBUG_MODE
-from .methods import room_broadcast, ws_message, get_random_item
+from .methods import room_broadcast, get_random_item
 
 
 class Quest:
@@ -56,17 +56,10 @@ class Quest:
             log.debug("{u.name} now has {u.experience} exp and {u.points} points".format(
                 u=member.user
             ))
-
-            level = int(await member.user.check_level())
-            if level > member.user.level:
-                await room_broadcast(
-                    self.room,
-                    "User {u} is now level {l}".format(
-                        u=member.user.character_name,
-                        l=level)
-                )
-                member.user.level = level
-                member.send(await ws_message(level, 'level'))
+            await member.user.level_up_broadcast(
+                self.room,
+                member
+            )
 
             await member.user.write_user_data()
             self.room.quest = None
