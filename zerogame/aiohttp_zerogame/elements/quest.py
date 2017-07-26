@@ -8,15 +8,15 @@ from .methods import room_broadcast, get_random_item
 
 class Quest:
     def __init__(self, app, room):
-        self.room = room
         self.app = app
         self.db = app.db
-        self.running = True
-        self.points = randrange(100, 1000, 100)
-        self.length = randrange(60, 360, 10)
         self.experience = randrange(1000, 3000, 1000)
-        self.start_time = gmtime()
+        self.length = randrange(60, 360, 10)
         self.name = None
+        self.points = randrange(100, 1000, 100)
+        self.room = room
+        self.running = True
+        self.start_time = gmtime()
 
         if DEBUG_MODE:
             self.length = randrange(6, 36, 1)

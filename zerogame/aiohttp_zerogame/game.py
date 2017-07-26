@@ -12,20 +12,27 @@ from .elements.quest import Quest
 class Game:
     def __init__(self, app):
         self.app = app
-        self.running = True
         self.quest = None
+        self.running = True
 
     async def run_game(self):
         while self.running:
             for room in self.app.rooms:
                 await self.send_events(room)
                 await self.check_quest(self.app, room)
+            for room in self.app.encounters:
+                await self.check_encounter(room)
             await sleep(1)
 
     async def send_events(self, room):
         for ws in room.members:
             event = await self.get_event(ws)
             await room_broadcast(room, event)
+
+    async def check_encounter(self, room):
+        for member in room.members:
+            if member.encounter.running:
+                await member.encounter.run_encounter()
 
     async def get_event(self, ws):
         story = Story(self.app.db, character=ws.user.character_name)
@@ -53,19 +60,25 @@ class Game:
 
 class Room:
     def __init__(self, app):
-        self.uuid = uuid4()
-        self.capacity = 4
-        self.available = True
-        self.members = []
         self.app = app
+        self.available = True
+        self.capacity = 4
+        self.members = []
         self.quest = None
+        self.uuid = uuid4()
 
-    async def append_room(self):
-        self.app.rooms.append(self)
+    async def append_room(self, encounter=False):
+        if not encounter:
+            self.app.rooms.append(self)
+        else:
+            self.app.encounters.append(self)
         log.debug('Room {} created'.format(self.uuid))
 
-    async def delete_room(self):
-        self.app.rooms.remove(self)
+    async def delete_room(self, encounter=False):
+        if not encounter:
+            self.app.rooms.remove(self)
+        else:
+            self.app.encounters.remove(self)
         log.debug('Room {} deleted'.format(self.uuid))
 
     async def check_room(self):
@@ -77,3 +90,9 @@ class Room:
         else:
             self.available = True
             log.debug('Room {} is available.'.format(self.uuid))
+
+
+class EncounterRoom(Room):
+    def __init__(self, app):
+        super().__init__(app)
+        self.capacity = 1

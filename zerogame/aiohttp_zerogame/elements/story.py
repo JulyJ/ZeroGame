@@ -5,9 +5,9 @@ from .methods import get_random_item
 
 class Story:
     def __init__(self, db, character):
+        self.character = character
         self.collection = db.stories
         self.db = db
-        self.character = character
 
     async def save(self, character, story):
         result = await self.collection.insert(

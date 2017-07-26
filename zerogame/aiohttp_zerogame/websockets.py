@@ -1,4 +1,5 @@
 from json import loads
+from random import choice
 
 from sockjs import MSG_CLOSED, MSG_MESSAGE, MSG_OPEN, SessionManager
 from aiohttp_session import get_session
@@ -6,7 +7,7 @@ from aiohttp_session import get_session
 from .config import log
 from .user import User
 from .game import Room
-from .elements.encounter import Encounter
+from .elements.encounter import Archeology, Battle, Dungeon, Fishing, Mining
 from .elements.methods import ws_message, room_broadcast, kick_user
 
 
@@ -67,8 +68,16 @@ class WebSocket:
         return room
 
     async def start_encounter(self, user_data):
+        encounters = (
+            Archeology,
+            Battle,
+            Dungeon,
+            Fishing,
+            Mining,
+        )
+
         if not self.ws_session.encounter:
-            encounter = Encounter(self.ws_session.app)
+            encounter = choice(encounters)(self.ws_session.app)
             self.ws_session.encounter = encounter
             await encounter.start_encounter(self.ws_session)
             await room_broadcast(

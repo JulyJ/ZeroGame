@@ -18,7 +18,6 @@ class User:
         self.character_name = data.get('character_name')
         self.level = 0
         self.skills = []
-        self.encounter = None
         self.experience = 0
         self.points = 0
         self.hash = None
@@ -59,16 +58,16 @@ class User:
         except CancelledError:
             log.debug('Async operation was canceled.')
             return
-        self.email = user.get('email')
-        self.name = user.get('name')
         self.character_name = user.get('character_name')
+        self.email = user.get('email')
+        self.encounter = user.get('encounter')
+        self.experience = user.get('experience')
         self.hash = user.get('hash')
         self.id = user.get('_id')
+        self.level = await self.check_level()
+        self.name = user.get('name')
         self.points = user.get('points')
         self.skills = user.get('skills')
-        self.experience = user.get('experience')
-        self.level = await self.check_level()
-        self.encounter = user.get('encounter')
 
     async def write_user_data(self):
         await self.collection.update(

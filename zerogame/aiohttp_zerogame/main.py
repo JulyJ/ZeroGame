@@ -63,6 +63,7 @@ class Server:
         app.ws = WebSocket()
         app.websockets = []
         app.rooms = []
+        app.encounters = []
         request_session_manager = RequestSessionManager(
             name='ws',
             app=app,
