@@ -43,7 +43,6 @@ class User:
                 'points': self.points,
                 'experience': self.experience,
                 'skills': self.skills,
-                'encounter': self.encounter,
                 'level': self.level
             })
             log.debug('Creating user: {}'.format(self.email))

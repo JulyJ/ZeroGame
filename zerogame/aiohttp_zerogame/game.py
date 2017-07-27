@@ -15,22 +15,28 @@ class Game:
         self.quest = None
         self.running = True
 
+    @staticmethod
+    async def iterator(items):
+        for i in items:
+            yield i
+            await sleep(0)
+
     async def run_game(self):
         while self.running:
-            for room in self.app.rooms:
+            async for room in self.iterator(self.app.rooms):
                 await self.send_events(room)
                 await self.check_quest(self.app, room)
-            for room in self.app.encounters:
+            async for room in self.iterator(self.app.encounters):
                 await self.check_encounter(room)
-            await sleep(1)
+            await sleep(0)
 
     async def send_events(self, room):
-        for ws in room.members:
+        async for ws in self.iterator(room.members):
             event = await self.get_event(ws)
             await room_broadcast(room, event)
 
     async def check_encounter(self, room):
-        for member in room.members:
+        async for member in self.iterator(room.members):
             if member.encounter.running:
                 await member.encounter.run_encounter()
 
