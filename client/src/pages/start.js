@@ -112,23 +112,23 @@ class StartPage extends React.Component {
         return (
             <div>
                 Let the journey begin, {name}!
-                <div>
+                <div  class="form-group">
                     HERO LEVEL {playerLevel}
                 </div>
                 
-                <div>
-                    <button onClick={this.handleStopJourney}>
+                <div  class="form-group">
+                    <button className="btn btn-danger" onClick={this.handleStopJourney}>
                         Stop Journey
                     </button>
                 </div>
-                <div>
+                <div  class="form-group">
                     {encounterStarted &&
-                        <button onClick={this.handleStopEncounter}>
+                        <button className="btn btn-warning" onClick={this.handleStopEncounter}>
                             Stop Encounter
                         </button>}
                     
                     {!encounterStarted &&
-                        <button onClick={this.handleStartEncounter}>
+                        <button className="btn btn-success" onClick={this.handleStartEncounter}>
                             Start Encounter
                         </button>}
                 </div>

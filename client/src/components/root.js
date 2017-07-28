@@ -10,6 +10,7 @@ import { PageContainer } from './layout/common';
 import IndexPage from '../pages/index';
 import GamePage from '../pages/start';
 
+import 'bootstrap/dist/css/bootstrap.css';
 import '../App.css';
 
 const FourOFour = (props) => {

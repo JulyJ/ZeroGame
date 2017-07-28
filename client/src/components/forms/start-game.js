@@ -51,9 +51,11 @@ class StartGameForm extends React.Component {
                 </div>
 
                 <h4>Create character or login with existing:</h4>
-                E-mail (unique):
-                <div>
+                
+                <label for="email">E-mail (unique):</label>
+                <div class="form-group">
                     <input type="text"
+                        class="form-control"
                         name="email"
                         placeholder="E-mail"
                         id="email"
@@ -63,9 +65,10 @@ class StartGameForm extends React.Component {
                         onChange={this.handleFieldChange} />
                 </div>
                 <br />
-                Password:
-                <div>
-                    <input type="text"
+                <label for="password">Password:</label>
+                <div class="form-group">
+                    <input type="password"
+                        class="form-control"
                         name="password"
                         placeholder="Password"
                         id="password"
@@ -74,9 +77,10 @@ class StartGameForm extends React.Component {
                         onChange={this.handleFieldChange} />
                 </div>
                 <br />
-                Your name:
-                <div>
+                <label for="name">Your Name:</label>
+                <div class="form-group">
                     <input type="text"
+                        class="form-control"
                         name="name"
                         placeholder="Name"
                         id="name"
@@ -85,9 +89,10 @@ class StartGameForm extends React.Component {
                         onChange={this.handleFieldChange} />
                 </div>
                 <br />
-                Your character name:
-                <div>
+                <label for="character_name">Your character name:</label>
+                <div class="form-group">
                     <input type="text"
+                        class="form-control"
                         name="characterName"
                         placeholder="Character name"
                         id="character_name"
@@ -96,7 +101,7 @@ class StartGameForm extends React.Component {
                         onChange={this.handleFieldChange} />
                 </div>
                 <br />
-                <input type="submit" value="Start game!"/>
+                <input className="btn btn-primary" type="submit" value="Start game!"/>
             </form>
         );
     }

@@ -14,7 +14,7 @@ const GameMessages = (props) => {
     const { messages } = props;
 
     return (
-        <GameMessagesContainer>
+        <GameMessagesContainer className="App-textarea">
             {messages.map((message, i) => {
                 if (message.type === 'chat') {
                     return (

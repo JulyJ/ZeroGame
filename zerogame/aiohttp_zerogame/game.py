@@ -43,7 +43,7 @@ class Game:
     async def get_event(self, ws):
         story = Story(self.app.db, character=ws.user.character_name)
         event = await story.get_event()
-        await sleep(randrange(20))
+        await sleep(randrange(1))
         return '[{time}] [{character}] {event}'.format(
             character=ws.user.character_name,
             event=event,
