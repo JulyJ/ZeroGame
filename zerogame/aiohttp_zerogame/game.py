@@ -19,7 +19,7 @@ class Game:
     async def iterator(items):
         for i in items:
             yield i
-            await sleep(0)
+            await sleep(0.5)
 
     async def run_game(self):
         while self.running:
@@ -28,7 +28,7 @@ class Game:
                 await self.check_quest(self.app, room)
             async for room in self.iterator(self.app.encounters):
                 await self.check_encounter(room)
-            await sleep(0)
+            await sleep(0.5)
 
     async def send_events(self, room):
         async for ws in self.iterator(room.members):
@@ -43,7 +43,7 @@ class Game:
     async def get_event(self, ws):
         story = Story(self.app.db, character=ws.user.character_name)
         event = await story.get_event()
-        await sleep(randrange(1))
+        await sleep(randrange(20))
         return '[{time}] [{character}] {event}'.format(
             character=ws.user.character_name,
             event=event,
